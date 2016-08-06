@@ -1,0 +1,28 @@
+{
+  "name": "runcmf/runcli",
+  "description": "RunCMF Command Line Interface. [migrate, seed, generate migrations, generate resources]",
+  "version": "0.0.1",
+  "license": "Apache 2",
+  "type": "project",
+  "keywords": ["RunCMF", "Slim3", "Slim 3", "Eloquent ORM"],
+  "authors": [
+    {
+      "name": "Vladimir",
+      "email": "1f7.wizard@gmail.com",
+      "homepage": "http://runcmf.ru"
+    }
+  ],
+  "require": {
+    "runcmf/runcmf-base": "0.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "RunCli\\": "src/RunCli"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  }
+}
