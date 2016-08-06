@@ -26,11 +26,11 @@ trait CliTrait
 
   protected function getConfig()
   {
-    $this->cfg = require __DIR__ . '../../../app/Config/Settings.php';
+    $this->cfg = require __DIR__ . '/../../../../../app/Config/Settings.php';
   }
   protected function initDB()
   {
-    $this->cfg = require __DIR__ . '../../../app/Config/Settings.php';
+    $this->cfg = require __DIR__ . '/../../../../../app/Config/Settings.php';
     // Register the database connection with Eloquent
     $capsule = new \Illuminate\Database\Capsule\Manager;
     $capsule->addConnection($this->cfg['settings']['db']);

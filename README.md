@@ -1,15 +1,22 @@
-2016.08.04
+2016.08.07
 
-#RunCMS Skeleton
+#RunCli
+Command Line Interface.
+    `migrate, seed, generate Eloquent ORM migrations, generate resources`
 
-## Create project
-    $ composer create-project -s dev runcmf/runcmf-skeleton my-app
-make sure var directory writable
- 
-### What is this repository for? ###
+## Install
+    add to composer
+    "require": {
+        "runcmf/runcli":  "dev-master"
+      },
 
-* RunCMF Skeleton
-* 0.1.0
+## Usage
+    php cli - for help
+    php cli make:seed vendor/runcmf/runbb
+    php cli make:migrate vendor/runcmf/runbb
+
+Version
+* 0.0.2
 
 
 ### Who do I talk to? ###
