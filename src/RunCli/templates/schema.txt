@@ -1,0 +1,5 @@
+DB::schema()->dropIfExists('$TABLE$');
+        DB::schema()->$METHOD$('$TABLE$', function($table)
+        {
+            $FIELDS$
+        });

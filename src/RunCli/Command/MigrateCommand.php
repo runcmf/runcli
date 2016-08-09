@@ -30,14 +30,12 @@ class MigrateCommand extends Command
 
   protected function configure()
   {
-    $this->initDB();
-
     $this
       ->setName('make:migrate')
       ->setDescription('Migrate the database from given path. f.ex. vendor/runcmf/runbb')
       ->addArgument(
         'path',
-        InputArgument::REQUIRED,
+        InputArgument::OPTIONAL,
         'Set Path Migrations Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
       )
       ->addArgument(
@@ -46,8 +44,18 @@ class MigrateCommand extends Command
         'arg [up]|down. OPTIONAL'
       )
       ->setHelp(<<<EOT
-Some Help Here
-<info>php cli make:migrate<env></info>
+Hardcoded path prefix 'DIR' - is path to site root and suffix 'var/migrations'.
+What in the middle is optional and you can set it or no.
+For example command <info>php cli make:migrate</info>
+try get migrations from your site_root/var/migrations
+Command <info>php cli make:migrate vendor/runcmf/runbb</info>
+try get migrations from your site_root/vendor/runcmf/runbb/var/migrations
+
+arg: arg [up]|down. OPTIONAL
+php cli make:migrate '' up
+php cli make:migrate '' down
+php cli make:migrate vendor/runcmf/runbb up
+php cli make:migrate vendor/runcmf/runbb down
 EOT
 );
 
@@ -55,10 +63,20 @@ EOT
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    $this->initDB();
+    $this->input = $input;
+    $this->output = $output;
+
     $path = $input->getArgument('path');
     $arg = $input->getArgument('arg');
 
-    $files = glob(DIR . $path . '/var/migrations/*.php');
+    $this->setMigrationPath($path);
+
+    $files = glob($this->getMigrationPath() . '/*_table.php');
+
+    if(empty($files)){
+      throw new \Exception( 'No migrations found :(' );
+    }
 
     foreach ($files as $file) {
       require_once($file);
@@ -75,7 +93,9 @@ EOT
       }
     }
 
-    $output->writeln('');
-    $output->writeln('<comment>'.$arg . ' migrations</comment> <info>done</info>');
+    $this->blockMessage(
+      'Success!',
+      strtoupper($arg) . ' migrations done from: '.$this->migrationPath
+    );
   }
 }

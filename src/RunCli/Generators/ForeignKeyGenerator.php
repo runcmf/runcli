@@ -1,5 +1,7 @@
 <?php
-namespace RunCli\MigrationsGenerator\Generators;
+namespace RunCli\Generators;
+
+use Illuminate\Database\Capsule\Manager as DB;
 
 class ForeignKeyGenerator {
 
@@ -17,12 +19,12 @@ class ForeignKeyGenerator {
 	 *
 	 * @return array
 	 */
-	public function generate($table, $schema, $ignoreForeignKeyNames)
+	public function generate($database, $table, $schema, $ignoreForeignKeyNames)
 	{
 		$this->table = $table;
 		$fields = [];
 
-		$foreignKeys = $schema->listTableForeignKeys($table);
+		$foreignKeys = $schema->listTableForeignKeys($table, $database);
 
 		if ( empty( $foreignKeys ) ) return array();
 

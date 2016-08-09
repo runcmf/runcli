@@ -19,10 +19,10 @@ namespace RunCli;
 
 use Symfony\Component\Console\Application;
 
-use RunCli\Command\SeedCommand;
 use RunCli\Command\MigrateCommand;
-use RunCli\Command\GenerateMigrationsCommand;
-use RunCli\Command\MigrateSeedCommand;
+use RunCli\Command\MigrationsGeneratorCommand;
+use RunCli\Command\SeedCommand;
+use RunCli\Command\SeedGeneratorCommand;
 use RunCli\Command\ControllerCommand;
 use RunCli\Command\ModelCommand;
 
@@ -33,10 +33,11 @@ class Cli extends Application
   public function __construct($name)
   {
     parent::__construct($name, $this->version);
+    //$c = new Container();
     $this->add(new MigrateCommand());
+    $this->add(new MigrationsGeneratorCommand());
     $this->add(new SeedCommand());
-    $this->add(new GenerateMigrationsCommand());
-//    $this->add(new MigrateSeedCommand());
+//    $this->add(new SeedGeneratorCommand());
 //    $this->add(new ModelCommand());
 //    $this->add(new ControllerCommand());
   }

@@ -1,11 +1,11 @@
-<?php
-namespace RunCli\MigrationsGenerator\Syntax;
+<?php namespace RunCli\Syntax;
 
 /**
  * Class AddForeignKeysToTable
  * @package Xethron\MigrationsGenerator\Syntax
  */
-class AddForeignKeysToTable extends Table {
+class AddForeignKeysToTable extends Table
+{
 
 	/**
 	 * Return string for adding a foreign key
@@ -36,5 +36,4 @@ class AddForeignKeysToTable extends Table {
 		}
 		return $output . ';';
 	}
-
 }

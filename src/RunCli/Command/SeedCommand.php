@@ -30,14 +30,12 @@ class SeedCommand extends Command
 
   protected function configure()
   {
-    $this->initDB();
-
     $this
       ->setName('make:seed')
       ->setDescription('Seed the database tables from given path. f.ex. vendor/runcmf/runbb')
       ->addArgument(
         'path',
-        InputArgument::REQUIRED,
+        InputArgument::OPTIONAL,
         'Set Path Seeds Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
       )
 //      ->addArgument(
@@ -54,9 +52,13 @@ EOT
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    $path = $input->getArgument('path');
+    $this->initDB();
+    $this->input = $input;
+    $this->output = $output;
 
-    $files = glob(DIR . $path . '/var/seeds/*.php');
+    $this->setSeedPathPath( $input->getArgument('path') );
+
+    $files = glob($this->getSeedPathPath() . '/*.php');
 
     foreach ($files as $file) {
       require_once($file);
@@ -67,7 +69,9 @@ EOT
       $obj->run();
     }
 
-    $output->writeln('');
-    $output->writeln('<comment>Seeds</comment> loading <info>done</info>');
+    $this->blockMessage(
+      'Success!',
+      'All seed loading done from: '.$this->getSeedPathPath()
+    );
   }
 }

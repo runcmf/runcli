@@ -1,5 +1,5 @@
 <?php
-namespace RunCli\MigrationsGenerator\Generators;
+namespace RunCli\Generators;
 
 use Illuminate\Database\Capsule\Manager as DB;
 
@@ -15,6 +15,10 @@ class FieldGenerator {
 		'bigint'   => 'bigInteger',
 		'datetime' => 'dateTime',
 		'blob'     => 'binary',
+    'int'      => 'integer',
+    'longtext' => 'longText',
+    'varchar'  => 'string',
+    'varbinary'=> 'binary'
 	];
 
 	/**
@@ -26,7 +30,6 @@ class FieldGenerator {
 	 * Create array of all the fields for a table
 	 *
 	 * @param string                                      $table Table Name
-	 * @param \Doctrine\DBAL\Schema\AbstractSchemaManager $schema
 	 * @param string                                      $database
 	 * @param bool                                        $ignoreIndexNames
 	 *
@@ -37,48 +40,58 @@ class FieldGenerator {
 		$this->database = $database;
 		$columns = $schema->listTableColumns( $table );
 		if ( empty( $columns ) ) return false;
-
+//die(print_r($columns));
 		$indexGenerator = new IndexGenerator($table, $schema, $ignoreIndexNames);
-		$fields = $this->setEnum($this->getFields($columns, $indexGenerator), $table);
+//die(print_r($indexGenerator));
+		$fields = $this->setEnum($schema, $this->getFields($columns, $indexGenerator), $table);
+//die(print_r($fields));
 		$indexes = $this->getMultiFieldIndexes($indexGenerator);
+//die(print_r($indexes));
 		return array_merge($fields, $indexes);
 	}
 
 	/**
-	 * Return all enum columns for a given table
-	 * @param string $table
-	 * @return array
-	 */
-	protected function getEnum($table)
-	{
-		try {
-			$result = DB::table('information_schema.columns')
-				->where('table_schema', $this->database)
-				->where('table_name', $table)
-				->where('data_type', 'enum')
-				->get(['column_name','column_type']);
-			if ($result)
-				return $result;
-			else
-				return [];
-		} catch (\Exception $e){
-			return [];
-		}
-	}
-
-	/**
+   * @param RunCli\Generators\SchemaGenerator
 	 * @param array $fields
 	 * @param string $table
 	 * @return array
 	 */
-	protected function setEnum(array $fields, $table)
+	protected function setEnum(& $schema, array $fields, $table)
 	{
-		foreach ($this->getEnum($table) as $column) {
+		foreach ($schema->getEnum($table) as $column) {
 			$fields[$column->column_name]['type'] = 'enum';
 			$fields[$column->column_name]['args'] = str_replace('enum(', 'array(', $column->column_type);
 		}
 		return $fields;
 	}
+
+	protected function getColLength($col)//FIXME expand types
+  {
+    if(in_array($col->DATA_TYPE, ['int', 'float', 'decimal', 'double'])
+//      $col->DATA_TYPE === 'int' ||
+//      $col->DATA_TYPE === 'float' ||
+//      $col->DATA_TYPE === 'decimal' ||
+//      $col->DATA_TYPE === 'double'
+    ){
+      return $col->NUMERIC_PRECISION;
+    }elseif(in_array($col->DATA_TYPE, ['blob', 'varchar', 'varbinary', 'text', 'char'])
+//      $col->DATA_TYPE === 'blob' ||
+//      $col->DATA_TYPE === 'varchar' ||
+//      $col->DATA_TYPE === 'varbinary' ||
+//      $col->DATA_TYPE === 'text' ||
+//      $col->DATA_TYPE === 'char'
+    ){
+      return $col->CHARACTER_MAXIMUM_LENGTH;
+    }
+  }
+  protected function compareStr($str, $needle)
+  {
+    if(strpos($str, $needle)){
+      return true;
+    }else{
+      return false;
+    }
+  }
 
 	/**
 	 * @param \Doctrine\DBAL\Schema\Column[] $columns
@@ -88,12 +101,14 @@ class FieldGenerator {
 	protected function getFields($columns, IndexGenerator $indexGenerator)
 	{
 		$fields = array();
+//die(print_r($columns));
 		foreach ($columns as $column) {
-			$name = $column->getName();
-			$type = $column->getType()->getName();
-			$length = $column->getLength();
-			$default = $column->getDefault();
-			$nullable = (!$column->getNotNull());
+//die(print_r($column));
+			$name = $column->COLUMN_NAME;//getName();
+			$type = $column->DATA_TYPE;//getType()->getName(); expand fieldTypeMap
+			$length = $this->getColLength($column);//$column->getLength();
+			$default = $column->COLUMN_DEFAULT;//getDefault();
+			$nullable = ($column->IS_NULLABLE === 'NO') ? false : true;//getNotNull());
 			$index = $indexGenerator->getIndex($name);
 
 			$decorators = null;
@@ -106,14 +121,20 @@ class FieldGenerator {
 			// Different rules for different type groups
 			if (in_array($type, ['tinyInteger', 'smallInteger', 'integer', 'bigInteger'])) {
 				// Integer
-				if ($type == 'integer' and $column->getUnsigned() and $column->getAutoincrement()) {
+        //if ($type == 'integer' and $column->getUnsigned() and $column->getAutoincrement()) {
+				if ($type == 'integer' and
+          $this->compareStr($column->COLUMN_TYPE, 'unsign') and
+          $this->compareStr($column->EXTRA, 'auto_inc')
+        ) {
 					$type = 'increments';
 					$index = null;
 				} else {
-					if ($column->getUnsigned()) {
+          //if ($column->getUnsigned()) {
+					if ($this->compareStr($column->COLUMN_TYPE, 'unsign')) {
 						$decorators[] = 'unsigned';
 					}
-					if ($column->getAutoincrement()) {
+//          if ($column->getAutoincrement()) {
+					if ($this->compareStr($column->EXTRA, 'auto_inc')) {
 						$args = 'true';
 						$index = null;
 					}
@@ -132,15 +153,19 @@ class FieldGenerator {
 				}
 			} elseif (in_array($type, ['decimal', 'float', 'double'])) {
 				// Precision based numbers
-				$args = $this->getPrecision($column->getPrecision(), $column->getScale());
-				if ($column->getUnsigned()) {
+				$args = $this->getPrecision(
+				  $this->getColLength($column),//$column->getPrecision()
+          ($column->NUMERIC_SCALE === null) ? 0 : $column->NUMERIC_SCALE//$column->getScale()
+        );
+        //if ($column->getUnsigned()) {
+				if ($this->compareStr($column->COLUMN_TYPE, 'unsign')) {
 					$decorators[] = 'unsigned';
 				}
 			} else {
 				// Probably not a number (string/char)
-				if ($type === 'string' && $column->getFixed()) {
-					$type = 'char';
-				}
+//				if ($type === 'string' /*&& $column->getFixed()*/) {//FIXME
+//					$type = 'char';
+//				}
 				$args = $this->getLength($length);
 			}
 
@@ -238,14 +263,15 @@ class FieldGenerator {
 	 */
 	protected function getMultiFieldIndexes(IndexGenerator $indexGenerator)
 	{
-		$indexes = array();
+		$indexes = [];
 		foreach ($indexGenerator->getMultiFieldIndexes() as $index) {
+//die(print_r($index));
 			$indexArray = [
-				'field' => $index->columns,
-				'type' => $index->type,
+				'field' => $index['columns'],//$index->columns,
+				'type' => $index['type'],
 			];
-			if ($index->name) {
-				$indexArray['args'] = $this->argsToString($index->name);
+			if ($index['name']) {
+				$indexArray['args'] = $this->argsToString($index['name']);
 			}
 			$indexes[] = $indexArray;
 		}

@@ -1,11 +1,12 @@
 <?php
-namespace RunCli\MigrationsGenerator\Syntax;
+namespace RunCli\Syntax;
 
 /**
  * Class AddToTable
  * @package Xethron\MigrationsGenerator\Syntax
  */
-class AddToTable extends Table {
+class AddToTable extends Table
+{
 
 	/**
 	 * Return string for adding a column

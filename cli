@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+use RunCli\Cli;
+
+$cli = new Cli('RunCMF Cli Interface');
+$cli->run();

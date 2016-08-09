@@ -1,12 +1,12 @@
 <?php
-namespace RunCli\MigrationsGenerator\Syntax;
+namespace RunCli\Syntax;
 
 /**
  * Class RemoveForeignKeysFromTable
  * @package Xethron\MigrationsGenerator\Syntax
  */
-class RemoveForeignKeysFromTable extends Table {
-
+class RemoveForeignKeysFromTable extends Table
+{
 	/**
 	 * Return string for dropping a foreign key
 	 *

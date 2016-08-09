@@ -1,6 +1,6 @@
 {
   "name": "runcmf/runcli",
-  "description": "RunCMF Command Line Interface. [migrate, seed, generate migrations, generate resources]",
+  "description": "RunCMF Command Line Interface. [migrate, seed, generate migrations and seeds from existing database, generate resources]",
   "version": "0.0.3",
   "license": "Apache 2",
   "type": "project",
@@ -13,7 +13,8 @@
     }
   ],
   "require": {
-    "runcmf/runcmf-base": "0.*"
+    "php": ">=5.5.0",
+    "illuminate/database": "5.2.*"
   },
   "autoload": {
     "psr-4": {
