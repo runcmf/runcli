@@ -1,9 +1,7 @@
-<?php
-namespace RunCli\Syntax;
+<?php namespace RunCli\Syntax;
 
 class DroppedTable
 {
-
   /**
    * Get string for dropping a table
    *
@@ -14,5 +12,4 @@ class DroppedTable
   {
     return "DB::schema()->drop('$tableName');";
   }
-
 }

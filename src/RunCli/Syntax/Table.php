@@ -2,9 +2,8 @@
 
 use Illuminate\Database\Capsule\Manager as DB;
 
-class Table// extends \Way\Generators\Syntax\Table
+class Table
 {
-
 	/**
 	 * @var string
 	 */
@@ -42,12 +41,6 @@ class Table// extends \Way\Generators\Syntax\Table
 	}
 
 	/**
-	 * @param array $item
-	 * @return string
-	 */
-	//abstract protected function getItem(array $item);
-
-	/**
 	 * @param $decorators
 	 * @return string
 	 */
@@ -63,6 +56,7 @@ class Table// extends \Way\Generators\Syntax\Table
 		}
 		return $output;
 	}
+
   /**
    * Fetch the template of the schema
    *
@@ -70,9 +64,8 @@ class Table// extends \Way\Generators\Syntax\Table
    */
   protected function getTemplate()
   {
-    return file_get_contents(__DIR__.'/../templates/schema.txt');
+    return file_get_contents(__DIR__ . '/../templates/schema.stub');
   }
-
 
   /**
    * Replace $FIELDS$ in the given template

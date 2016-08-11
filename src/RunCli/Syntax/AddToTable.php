@@ -1,5 +1,4 @@
-<?php
-namespace RunCli\Syntax;
+<?php namespace RunCli\Syntax;
 
 /**
  * Class AddToTable
@@ -7,7 +6,6 @@ namespace RunCli\Syntax;
  */
 class AddToTable extends Table
 {
-
 	/**
 	 * Return string for adding a column
 	 *

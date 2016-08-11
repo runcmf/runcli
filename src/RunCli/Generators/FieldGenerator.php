@@ -1,7 +1,4 @@
-<?php
-namespace RunCli\Generators;
-
-use Illuminate\Database\Capsule\Manager as DB;
+<?php namespace RunCli\Generators;
 
 class FieldGenerator {
 
@@ -40,13 +37,9 @@ class FieldGenerator {
 		$this->database = $database;
 		$columns = $schema->listTableColumns( $table );
 		if ( empty( $columns ) ) return false;
-//die(print_r($columns));
 		$indexGenerator = new IndexGenerator($table, $schema, $ignoreIndexNames);
-//die(print_r($indexGenerator));
 		$fields = $this->setEnum($schema, $this->getFields($columns, $indexGenerator), $table);
-//die(print_r($fields));
 		$indexes = $this->getMultiFieldIndexes($indexGenerator);
-//die(print_r($indexes));
 		return array_merge($fields, $indexes);
 	}
 
@@ -67,23 +60,28 @@ class FieldGenerator {
 
 	protected function getColLength($col)//FIXME expand types
   {
-    if(in_array($col->DATA_TYPE, ['int', 'float', 'decimal', 'double'])
-//      $col->DATA_TYPE === 'int' ||
-//      $col->DATA_TYPE === 'float' ||
-//      $col->DATA_TYPE === 'decimal' ||
-//      $col->DATA_TYPE === 'double'
-    ){
+    if(in_array($col->DATA_TYPE,
+      [
+        'int',
+        'float',
+        'decimal',
+        'double'
+      ]
+    )){
       return $col->NUMERIC_PRECISION;
-    }elseif(in_array($col->DATA_TYPE, ['blob', 'varchar', 'varbinary', 'text', 'char'])
-//      $col->DATA_TYPE === 'blob' ||
-//      $col->DATA_TYPE === 'varchar' ||
-//      $col->DATA_TYPE === 'varbinary' ||
-//      $col->DATA_TYPE === 'text' ||
-//      $col->DATA_TYPE === 'char'
-    ){
+    }elseif(in_array($col->DATA_TYPE,
+      [
+        'blob',
+        'varchar',
+        'varbinary',
+        'text',
+        'char'
+      ]
+    )){
       return $col->CHARACTER_MAXIMUM_LENGTH;
     }
   }
+
   protected function compareStr($str, $needle)
   {
     if(strpos($str, $needle)){
@@ -94,21 +92,19 @@ class FieldGenerator {
   }
 
 	/**
-	 * @param \Doctrine\DBAL\Schema\Column[] $columns
+	 * @param \ArrayObject $columns
 	 * @param IndexGenerator $indexGenerator
 	 * @return array
 	 */
 	protected function getFields($columns, IndexGenerator $indexGenerator)
 	{
-		$fields = array();
-//die(print_r($columns));
+		$fields = [];
 		foreach ($columns as $column) {
-//die(print_r($column));
-			$name = $column->COLUMN_NAME;//getName();
+			$name = $column->COLUMN_NAME;//getName(); //DBAL column method
 			$type = $column->DATA_TYPE;//getType()->getName(); expand fieldTypeMap
 			$length = $this->getColLength($column);//$column->getLength();
 			$default = $column->COLUMN_DEFAULT;//getDefault();
-			$nullable = ($column->IS_NULLABLE === 'NO') ? false : true;//getNotNull());
+			$nullable = ($column->IS_NULLABLE === 'NO');//getNotNull());
 			$index = $indexGenerator->getIndex($name);
 
 			$decorators = null;
@@ -265,7 +261,6 @@ class FieldGenerator {
 	{
 		$indexes = [];
 		foreach ($indexGenerator->getMultiFieldIndexes() as $index) {
-//die(print_r($index));
 			$indexArray = [
 				'field' => $index['columns'],//$index->columns,
 				'type' => $index['type'],

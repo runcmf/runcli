@@ -1,5 +1,4 @@
-<?php
-namespace RunCli\Generators;
+<?php namespace RunCli\Generators;
 
 class IndexGenerator {
 
@@ -34,14 +33,10 @@ class IndexGenerator {
 		$this->ignoreIndexNames = $ignoreIndexNames;
 
 		$this->indexesList = $schema->listTableIndexes( $table );
-//die(print_r($this->indexesList));
 		foreach ( $this->indexesList as $index ) {
-//die(print_r($index));
 			$indexArray = $this->indexToArray($table, $index);
-//die(print_r($indexArray));
 			if ( count( $indexArray['columns'] ) === 1 ) {
 				$columnName = $indexArray['columns'][0];
-//die(print_r($indexArray));
 				$this->indexes[ $columnName ] = /*(object)*/ $indexArray;
 			} else {
         if(in_array($indexArray, $this->multiFieldIndexes))
@@ -51,12 +46,7 @@ class IndexGenerator {
 				$this->multiFieldIndexes[] = /*(object)*/ $indexArray;
 			}
 		}
-//    array_unique ($this->multiFieldIndexes);
-//die(print_r($tmp));
-//die(print_r($this->indexes));
-//die(print_r($this->multiFieldIndexes));
 	}
-
 
   protected function compareStr($str, $needle)
   {
@@ -66,6 +56,7 @@ class IndexGenerator {
       return true;
     }
   }
+
   protected function getMultiple($key)
   {
     $ret = [];
@@ -77,10 +68,10 @@ class IndexGenerator {
     }
     return $ret;
   }
+
 	protected function indexToArray($table, $index)
 	{
-//die(print_r($index));
-    //if ( $index->isPrimary() ) {
+    //if ( $index->isPrimary() ) {// DBAL method
 		if ( $this->compareStr($index->Key_name, 'PRIMARY') ) {
 			$type = 'primary';
     //} elseif ( $index->isUnique() ) {
@@ -90,7 +81,6 @@ class IndexGenerator {
 			$type = 'index';
 		}
 		$array = ['type' => $type, 'name' => null, 'columns' => $this->getMultiple($index)/*getColumns()*/];
-//die(print_r($array));
 		if ( ! $this->ignoreIndexNames and
       !$this->isDefaultIndexName(
         $table,
@@ -101,7 +91,6 @@ class IndexGenerator {
     ) {
 			$array['name'] = $index->Key_name;//getName();
 		}
-//die(print_r($array));
 		return $array;
 	}
 
@@ -134,7 +123,6 @@ class IndexGenerator {
 		return $name == $this->getDefaultIndexName( $table, $type, $columns );
 	}
 
-
 	/**
 	 * @param string $name
 	 * @return null|object
@@ -154,5 +142,4 @@ class IndexGenerator {
 	{
 		return $this->multiFieldIndexes;
 	}
-
 }

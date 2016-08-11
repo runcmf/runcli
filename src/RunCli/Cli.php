@@ -28,7 +28,7 @@ use RunCli\Command\ModelCommand;
 
 class Cli extends Application
 {
-  private $version = '0.0.1';
+  private $version = '0.0.4';
 
   public function __construct($name)
   {
@@ -37,7 +37,7 @@ class Cli extends Application
     $this->add(new MigrateCommand());
     $this->add(new MigrationsGeneratorCommand());
     $this->add(new SeedCommand());
-//    $this->add(new SeedGeneratorCommand());
+    $this->add(new SeedGeneratorCommand());
 //    $this->add(new ModelCommand());
 //    $this->add(new ControllerCommand());
   }

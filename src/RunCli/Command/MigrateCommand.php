@@ -31,7 +31,7 @@ class MigrateCommand extends Command
   protected function configure()
   {
     $this
-      ->setName('make:migrate')
+      ->setName('migrate:fill')
       ->setDescription('Migrate the database from given path. f.ex. vendor/runcmf/runbb')
       ->addArgument(
         'path',
@@ -46,16 +46,16 @@ class MigrateCommand extends Command
       ->setHelp(<<<EOT
 Hardcoded path prefix 'DIR' - is path to site root and suffix 'var/migrations'.
 What in the middle is optional and you can set it or no.
-For example command <info>php cli make:migrate</info>
+For example command <info>php cli migrate:fill</info>
 try get migrations from your site_root/var/migrations
-Command <info>php cli make:migrate vendor/runcmf/runbb</info>
+Command <info>php cli migrate:fill vendor/runcmf/runbb</info>
 try get migrations from your site_root/vendor/runcmf/runbb/var/migrations
 
 arg: arg [up]|down. OPTIONAL
-php cli make:migrate '' up
-php cli make:migrate '' down
-php cli make:migrate vendor/runcmf/runbb up
-php cli make:migrate vendor/runcmf/runbb down
+php cli migrate:fill '' up
+php cli migrate:fill '' down
+php cli migrate:fill vendor/runcmf/runbb up
+php cli migrate:fill vendor/runcmf/runbb down
 EOT
 );
 
@@ -72,12 +72,12 @@ EOT
 
     $this->setMigrationPath($path);
 
-    $files = glob($this->getMigrationPath() . '/*_table.php');
+    $files = $this->glob($this->getMigrationPath() . '/*_table.php');
 
     if(empty($files)){
       throw new \Exception( 'No migrations found :(' );
     }
-
+    $cnt=0;
     foreach ($files as $file) {
       require_once($file);
       $class = $this->mapFileNameToClassName(basename($file));
@@ -91,11 +91,12 @@ EOT
         $output->writeln('<question>'.$arg.'</question> migration <info>' . $class.'</info>');
         $obj->up();
       }
+      $cnt++;
     }
 
     $this->blockMessage(
       'Success!',
-      strtoupper($arg) . ' migrations done from: '.$this->migrationPath
+      $cnt .' '. strtoupper($arg) . ' migrations done from: '.$this->migrationPath
     );
   }
 }

@@ -34,10 +34,10 @@ class SchemaGenerator {
 
 	/**
 	 * @param string $database
-	 * @param bool   $ignoreIndexNames
-	 * @param bool   $ignoreForeignKeyNames
+	 * @param string $ignoreIndexNames
+	 * @param string $ignoreForeignKeyNames
 	 */
-	public function __construct($database, $ignoreIndexNames, $ignoreForeignKeyNames)
+	public function __construct($database, $ignoreIndexNames='', $ignoreForeignKeyNames='')
 	{
 		$this->database = $database;
 
@@ -65,6 +65,31 @@ class SchemaGenerator {
 	{
     return $this->foreignKeyGenerator->generate($this->database, $table, $this, $this->ignoreForeignKeyNames);
 	}
+
+
+	public function getTablePrefix()
+  {
+    return DB::getTablePrefix();
+  }
+
+  /**
+   * Checks if a database table exists
+   * @param string $table
+   * @return boolean
+   */
+  public function hasTable($table)
+  {
+    return DB::schema()->hasTable($table);
+  }
+
+  public function getData($table, $max)
+  {
+    if (!$max) {
+      return DB::table($table)->get();
+    }
+
+    return DB::table($table)->limit($max)->get();
+  }
 
   /**
    * Get all the tables
@@ -102,8 +127,7 @@ class SchemaGenerator {
       from `information_schema`.`columns`
       where `table_schema` = "'.$this->database.'" and `table_name` = "'.$table.'"';
 
-    $res = DB::select(DB::raw($q));
-    return $res;
+    return DB::select(DB::raw($q));
   }
 
   public function listTableIndexes($table)

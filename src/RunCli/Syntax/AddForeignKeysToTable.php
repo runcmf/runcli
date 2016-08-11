@@ -6,7 +6,6 @@
  */
 class AddForeignKeysToTable extends Table
 {
-
 	/**
 	 * Return string for adding a foreign key
 	 *

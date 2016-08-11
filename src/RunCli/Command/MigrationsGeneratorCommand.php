@@ -7,26 +7,26 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Illuminate\Database\Capsule\Manager as DB;
-
 use RunCli\Generators\SchemaGenerator;
 use RunCli\Syntax\AddForeignKeysToTable;
 use RunCli\Syntax\AddToTable;
 use RunCli\Syntax\DroppedTable;
 use RunCli\Syntax\RemoveForeignKeysFromTable;
 
-use Exception;
+use RuntimeException;
 
 class MigrationsGeneratorCommand extends Command
 {
   use CliTrait;
 
   protected $schema;
+  private $counter;
+  private $fileName;
 
   protected function configure()
   {
     $this
-      ->setName('make:generate')
+      ->setName('migrate:generate')
       ->setDescription('Generate migrations from existing DB.')
       ->addArgument(
         'path',
@@ -49,9 +49,9 @@ class MigrationsGeneratorCommand extends Command
       ->setHelp(<<<EOT
 Hardcoded path prefix 'DIR' - is path to root with slash and suffix '/var/migrations'.
 What in the middle is optional and you can set it or no.
-For example command <info>php cli make:generate</info>
+For example command <info>php cli migrate:generate</info>
 try generate migrations to your_root/var/migrations
-Command <info>php cli make:migrate vendor/runcmf/runbb</info>
+Command <info>php cli migrate:generate vendor/runcmf/runbb</info>
 try generate migrations to your_root/<comment>vendor/runcmf/runbb</comment>/var/migrations
 <error>REMEMBER</error> <question>directory must be writable</question>
 EOT
@@ -74,7 +74,6 @@ EOT
     $ignoreFKNames = $this->input->getArgument('ignoreFK');
     $ignore = $this->input->getOption('ignore');
 
-    // Display some helpfull info
     if (empty($database)) {
       $database = $this->getDatabaseName();
     }
@@ -97,11 +96,12 @@ EOT
 
     $this->sectionMessage('1', '<fg=magenta>Setting up Tables and Index Migrations</>');
     $this->generate( 'create', $tables );
+    $this->output->writeln($this->counter.' <comment>Migrations generated</comment>');
 
     $this->sectionMessage('2', '<fg=magenta>Setting up Foreign Key Migrations</>');
     $this->generate( 'foreign_keys', $tables );
+    $this->output->writeln($this->counter.' <comment>Foreign keys generated</comment>');
 
-    // Symfony style block messages
     $this->blockMessage('Success!', 'Database migrations generated in: '.$this->getMigrationPath());
   }
 
@@ -111,48 +111,34 @@ EOT
    *
    * @param  string $method Create Tables or Foreign Keys ['create', 'foreign_keys']
    * @param  array  $tables List of tables to create migrations for
-   * @throws Exception
+   * @throws RuntimeException
    * @return void
    */
   private function generate( $method, $tables )
   {
-    if (!empty($tables)) {
-      $this->customDb = true;
-    }
-
     if ( $method == 'create' ) {
       $function = 'getFields';
       $prefix = 'create';
-      $this->datePrefix = date( 'Y_m_d_His' );
+      $this->datePrefix = date( $this->dateTemplate );
     } elseif ( $method = 'foreign_keys' ) {
       $function = 'getForeignKeyConstraints';
       $prefix = 'add_foreign_keys_to';
       $method = 'table';
-      $this->datePrefix = date( 'Y_m_d_His', strtotime( '+1 second' ) );
+      $this->datePrefix = date( $this->dateTemplate, strtotime( '+1 second' ) );
     } else {
-      throw new \Exception( $method );
+      throw new RuntimeException( $method );
     }
-    $cnt=0;
+    $this->counter=0;
     foreach ( $tables as $table ) {
-//die(print_r($table));
-      $cnt++;
-      $table = $table->table_name;
-      $this->migrationName = $prefix .'_'. $table .'_table';
-      $this->fileName = $this->datePrefix .'_'.$prefix .'_'. $table .'_table.php';
+      $tableWithOutPrefix = substr($table->table_name, strlen($this->schema->getTablePrefix()));
+      $this->migrationName = $prefix .'_'. $tableWithOutPrefix .'_table';
+      $this->fileName = $this->datePrefix .'_'.$prefix .'_'. $tableWithOutPrefix .'_table.php';
       $this->method = $method;
-      $this->table = $table;
-      $this->fields = $this->schema->{$function}( $table );
+      $this->table = $table->table_name;
+      $this->fields = $this->schema->{$function}( $table->table_name );
       if ( $this->fields ) {
         $this->save($this->fileName);
-        //$this->output->writeln('<comment>Migration ' . $table . '</comment>');
-//if($cnt === 3) {
-//  die($this->migrationName."\n");
-//}
-
-//        if ( $this->log ) {
-//          $file = $this->datePrefix . '_' . $this->migrationName;
-//          $this->repository->log($file, $this->batch);
-//        }
+        $this->counter++;
       }
     }
   }
@@ -163,7 +149,7 @@ EOT
   private function save($file)
   {
     if(!is_dir($this->getMigrationPath()) || !is_writable($this->getMigrationPath())){
-      throw new \Exception( $this->getMigrationPath().' path not found!' );
+      throw new RuntimeException( $this->getMigrationPath().' path not found!' );
     }
 
     try
@@ -172,12 +158,12 @@ EOT
         'migration',
         $this->getTemplateData()
       );
-      file_put_contents($this->getMigrationPath() . '/' . $file, $template);
+      $this->fileSave($this->getMigrationPath() . '/' . $file, $template);
 
       $this->output->writeln('<comment>Generated migration:</comment> <fg=cyan;options=bold>' . $file . '</>');
     }
 
-    catch (Exception $e)
+    catch (RuntimeException $e)
     {
       $this->output->writeln('<error>The file, ' . $file . ', already exists! I don\'t want to overwrite it.</error>');
     }
@@ -190,14 +176,14 @@ EOT
    */
   private function getTemplateData()
   {
-    $table = substr($this->table, strlen(DB::getTablePrefix()));
+    $table = substr($this->table, strlen($this->schema->getTablePrefix()));
 
     if ( $this->method == 'create' ) {
       $up = (new AddToTable($this->file))->run($this->fields, $table, 'create');
       $down = (new DroppedTable)->drop($table);
     } else {
-      $up = (new AddForeignKeysToTable($this->file, $this->compiler))->run($this->fields,$table);
-      $down = (new RemoveForeignKeysFromTable($this->file, $this->compiler))->run($this->fields,$table);
+      $up = (new AddForeignKeysToTable($this->file))->run($this->fields,$table);
+      $down = (new RemoveForeignKeysFromTable($this->file))->run($this->fields,$table);
     }
 
     return [
@@ -206,5 +192,4 @@ EOT
       'DOWN'  => $down
     ];
   }
-
 }

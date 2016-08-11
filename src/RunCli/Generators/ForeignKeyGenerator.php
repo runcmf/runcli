@@ -1,7 +1,4 @@
-<?php
-namespace RunCli\Generators;
-
-use Illuminate\Database\Capsule\Manager as DB;
+<?php namespace RunCli\Generators;
 
 class ForeignKeyGenerator {
 

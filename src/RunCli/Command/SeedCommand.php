@@ -31,21 +31,24 @@ class SeedCommand extends Command
   protected function configure()
   {
     $this
-      ->setName('make:seed')
+      ->setName('seed:fill')
       ->setDescription('Seed the database tables from given path. f.ex. vendor/runcmf/runbb')
       ->addArgument(
         'path',
         InputArgument::OPTIONAL,
         'Set Path Seeds Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
       )
-//      ->addArgument(
-//        'methods',
-//        InputArgument::IS_ARRAY,
-//        'What methods do you want (separate multiple method with a space)?'
-//      )
       ->setHelp(<<<EOT
-Some Help Here
-<info>php cli make:migrate<env></info>
+Hardcoded path prefix 'DIR' - is path to site root and suffix 'var/seeds'.
+What in the middle is optional and you can set it or no.
+For example command <info>php cli seed:fill</info>
+try get seeds from your site_root/var/seeds
+Command <info>php cli seed:fill vendor/runcmf/runbb</info>
+try get seeds from your site_root/vendor/runcmf/runbb/var/seeds
+
+Example
+php cli seed:fill
+php cli seed:fill vendor/runcmf/runbb
 EOT
       );
   }
@@ -56,22 +59,26 @@ EOT
     $this->input = $input;
     $this->output = $output;
 
-    $this->setSeedPathPath( $input->getArgument('path') );
+    $this->setSeedPath( $input->getArgument('path') );
 
-    $files = glob($this->getSeedPathPath() . '/*.php');
+    $files = $this->glob($this->getSeedPath() . '/*_seeds.php');
 
+    if(empty($files)){
+      throw new \Exception( 'No seeds found :(' );
+    }
+    $cnt=0;
     foreach ($files as $file) {
       require_once($file);
       $class = $this->mapFileNameToClassName(basename($file));
       $obj = new $class;
-
+      $cnt++;
       $output->writeln('<question>filling</question> seed <info>' . $class.'</info>');
       $obj->run();
     }
 
     $this->blockMessage(
       'Success!',
-      'All seed loading done from: '.$this->getSeedPathPath()
+      $cnt . ' seeds loading done from: '.$this->getSeedPath()
     );
   }
 }
