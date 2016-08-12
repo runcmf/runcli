@@ -108,7 +108,7 @@ EOT
     }
     catch(PDOException $e)
     {
-      echo print_r($dbh->errorInfo(), true) . "\n\n" . $e->getMessage();
+      echo "\n\n" . $e->getMessage();
     }
 
     if($result) {
