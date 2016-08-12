@@ -23,6 +23,7 @@ use RunCli\Command\MigrateCommand;
 use RunCli\Command\MigrationsGeneratorCommand;
 use RunCli\Command\SeedCommand;
 use RunCli\Command\SeedGeneratorCommand;
+use RunCli\Command\MakeDBCommand;
 use RunCli\Command\ControllerCommand;
 use RunCli\Command\ModelCommand;
 
@@ -34,6 +35,7 @@ class Cli extends Application
   {
     parent::__construct($name, $this->version);
     //$c = new Container();
+    $this->add(new MakeDBCommand());
     $this->add(new MigrateCommand());
     $this->add(new MigrationsGeneratorCommand());
     $this->add(new SeedCommand());

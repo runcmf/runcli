@@ -1,7 +1,7 @@
 [![Latest Version on Packagist][ico-version]][link-packagist] [![Software License][ico-license]][link-license] [![Total Downloads][ico-downloads]][link-downloads]
 #RunCli
 Standalone command line interface.
-    `migrate, seed, generate migrations and seeds from existing database, generate resources`
+    `migrate, seed, generate migrations and seeds from existing database, generate resources, create database`
 
 main objective was generate [Eloquent ORM](https://github.com/illuminate/database) migrations from existing database outside [Laravel](https://github.com/laravel/laravel) 
 in my case [Eloquent ORM](https://github.com/illuminate/database) used with [Slim 3 Framework](https://github.com/slimphp/Slim)
@@ -10,13 +10,13 @@ in my case [Eloquent ORM](https://github.com/illuminate/database) used with [Sli
 ## Install
 * Via Composer, command line
 ``` bash
-$ composer require runcmf/runcli
+$ composer require --dev runcmf/runcli
 ```
 * Via composer.json
 ```
 ...
 "require": {
-    "runcmf/runcli":  "0.*"
+    "runcmf/runcli":  "dev-master"
   },
 ...
 ```
@@ -117,7 +117,7 @@ DB::schema()->table('users', function($table) {
 });
 ```
 solution 2:
-use [Eloquent ORM ipAddress](https://laravel.com/docs/master/migrations)
+refactor your code with **ipAddress** [Eloquent ORM ipAddress](https://laravel.com/docs/master/migrations)
 ```php
 $table->ipAddress('visitor');
 ```
@@ -136,6 +136,15 @@ php cli seed:generate
 ![example](ss/ss4.png "seed generate")
 
 help soon...
+
+## Create database
+``` bash
+php cli make:db [schema] [charset] [collation]
+```
+schema - OPTIONAL, schema name from config or exception generated;
+charset - OPTIONAL, default value **utf8**;
+collation - OPTIONAL, default value **utf8_general_ci**;
+
 
 
 ### Who do I talk to? ###
