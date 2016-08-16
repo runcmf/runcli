@@ -2,6 +2,15 @@
 #RunCli
 Standalone command line interface.
     `migrate, seed, generate migrations and seeds from existing database, generate resources, create database`
+supported driver `mysql, pgsql`
+``` bash
+$ mysql -V
+mysql  Ver 15.1 Distrib 10.1.16-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2
+```
+``` bash
+$ psql --version
+psql (PostgreSQL) 9.4.9
+```
 
 main objective was generate [Eloquent ORM](https://github.com/illuminate/database) migrations from existing database outside [Laravel](https://github.com/laravel/laravel) 
 in my case [Eloquent ORM](https://github.com/illuminate/database) used with [Slim 3 Framework](https://github.com/slimphp/Slim)
@@ -74,10 +83,7 @@ php cli seed:fill
 php cli migrate:generate
 ```
 ![example](ss/ss3.png "generate migrations")
-####*Generator info:*
-> Now tested only MyISAM on mysqlnd 5.0.12-dev and as result: **NOT ready Foreign Keys**
-> with time fix it :)
-
+###*Generator info:*
 ####Know problems:
 ```sql
 `regip` varbinary(16) NOT NULL DEFAULT '',
@@ -126,6 +132,24 @@ http://stackoverflow.com/questions/17795517/laravel-4-saving-ip-address-to-model
 
 and so on :)
 
+#### PostgreSQL
+
+```php
+$table->enum('enum_from_type', ['enum1', 'enum2', 'enum3', 'enum4'])->nullable()->default('enum2');
+```
+migrated to
+```bash
+Column          Type
+enum_from_type	character varying(255) NULL [enum2]	
+```
+solution:
+if need build enum by hand.
+
+Eloquent ORM not work with PostgreSQL:
+```php
+DB::schema()->hasTable($table);
+```
+
 
 ## Generate seeds from existing database:
 > redone from [orangehill/iseed](https://github.com/orangehill/iseed)
@@ -142,8 +166,8 @@ help soon...
 php cli make:db [schema] [charset] [collation]
 ```
 schema - OPTIONAL, schema name from config or exception generated;
-charset - OPTIONAL, default value **utf8**;
-collation - OPTIONAL, default value **utf8_general_ci**;
+charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**];
+collation - OPTIONAL, default value [MySQL = **utf8_general_ci**, PostgreSQL = **en_US.UTF-8**];
 
 
 

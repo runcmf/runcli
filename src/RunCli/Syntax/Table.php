@@ -1,7 +1,5 @@
 <?php namespace RunCli\Syntax;
 
-use Illuminate\Database\Capsule\Manager as DB;
-
 class Table
 {
 	/**
@@ -17,12 +15,12 @@ class Table
 	 */
 	public function run(array $fields, $table, $method = 'table')
 	{
-//		$table = substr($table, strlen(DB::getTablePrefix()));
 		$this->table = $table;
 		$compiled = $this->compile($this->getTemplate(), ['TABLE'=>$table,'METHOD'=>$method]);
-		$t =  $this->replaceFieldsWith($this->getItems($fields), $compiled);
-//die($t);
-    return $t;
+//    if($method !== 'table'){
+//      $compiled = "DB::schema()->dropIfExists('$table');\n        ".$compiled;
+//    }
+    return $this->replaceFieldsWith($this->getItems($fields), $compiled);
 	}
 
 	/**
@@ -33,7 +31,7 @@ class Table
 	 */
 	protected function getItems(array $items)
 	{
-		$result = array();
+		$result = [];
 		foreach($items as $item) {
 			$result[] = $this->getItem($item);
 		}

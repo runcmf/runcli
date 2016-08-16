@@ -34,7 +34,6 @@ class Cli extends Application
   public function __construct($name)
   {
     parent::__construct($name, $this->version);
-    //$c = new Container();
     $this->add(new MakeDBCommand());
     $this->add(new MigrateCommand());
     $this->add(new MigrationsGeneratorCommand());

@@ -23,9 +23,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use RunCli\Generators\SchemaGenerator;
+
 use Exception;
-use PDO;
-use PDOException;
 
 class MakeDBCommand extends Command
 {
@@ -63,55 +63,28 @@ EOT
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+//    $this->initDB();
+
     $this->input = $input;
     $this->output = $output;
 
     $this->getConfig();// no ret val
 
     $schemaName = $input->getArgument('schema') ?: $this->cfg['settings']['db']['database'];
-    $charset = $input->getArgument('charset') ?: 'utf8';
-    $collation = $input->getArgument('collation') ?: 'utf8_general_ci';
+    $charset = $input->getArgument('charset');
+    $collation = $input->getArgument('collation');
 
-    $result = false;
-    $dsn = $q = '';
-    switch ($this->cfg['settings']['db']['driver']){
-      case 'mysql':
-        $dsn = 'mysql:host='.$this->cfg['settings']['db']['host'];
-        $q = 'CREATE DATABASE IF NOT EXISTS `'.$schemaName.'` DEFAULT CHARACTER SET `'.$charset.'` COLLATE `'.$collation.'`;';
-        break;
-//      case 'pgsql'://FIXME ???
-//        $dsn = 'pgsql:host='.$this->cfg['settings']['db']['host'];
-//        $q = 'CREATE DATABASE IF NOT EXISTS `'.$schemaName.'` DEFAULT CHARACTER SET `'.$charset.'` COLLATE `'.$collation.'`;';
-//        break;
-//      case 'sqlite':
-//        $dsn = 'sqlite:'.$this->cfg['settings']['db']['database'];
-//        $s = '';
-//        break;
-//      case 'sqlsrv':
-//        $dsn = 'sqlsrv:host='.$this->cfg['settings']['db']['host'];
-//        $q = 'CREATE DATABASE `'.$schemaName.'`';
-//        break;
-    }
 
-    if($q === ''){
-      throw new Exception( 'DB driver not configured ??? Check configuration :(' );
-    }
+    $schema = new SchemaGenerator(
+      $this->cfg['settings']['db']
+//      $database,
+//      $ignore,
+//      $ignoreFKNames
+    );
 
-    try {
-      $dbh = new PDO($dsn,
-        $this->cfg['settings']['db']['username'],
-        $this->cfg['settings']['db']['password']
-      );
-      // set the PDO error mode to exception
-      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $result = $dbh->exec($q);
-    }
-    catch(PDOException $e)
+
+    if($schema->createDatabase($schemaName, $charset, $collation))
     {
-      echo "\n\n" . $e->getMessage();
-    }
-
-    if($result) {
       $this->blockMessage(
         'Success!',
         'Database ' . $schemaName . ' crated!'

@@ -2,22 +2,12 @@
 
 use Illuminate\Database\Capsule\Manager as DB;
 
-class SchemaGenerator {
-
+class SchemaGenerator
+{
 	/**
 	 * @var schema
 	 */
 	protected $schema;
-
-	/**
-	 * @var FieldGenerator
-	 */
-	protected $fieldGenerator;
-
-	/**
-	 * @var ForeignKeyGenerator
-	 */
-	protected $foreignKeyGenerator;
 
 	/**
 	 * @var string
@@ -32,40 +22,56 @@ class SchemaGenerator {
 	 */
 	private $ignoreForeignKeyNames;
 
+  private $adapter;
+  private $cfg;
+
 	/**
+   * @param array $cfg DB config
 	 * @param string $database
 	 * @param string $ignoreIndexNames
 	 * @param string $ignoreForeignKeyNames
 	 */
-	public function __construct($database, $ignoreIndexNames='', $ignoreForeignKeyNames='')
+	public function __construct($cfg, $database='', $ignoreIndexNames='', $ignoreForeignKeyNames='')
 	{
-		$this->database = $database;
+	  $this->cfg = $cfg;
 
-		$this->fieldGenerator = new FieldGenerator();
-		$this->foreignKeyGenerator = new ForeignKeyGenerator();
+    if(!$database){
+      $this->database = $cfg['database'];
+    }else {
+      $this->database = $database;
+    }
 
 		$this->ignoreIndexNames = $ignoreIndexNames;
 		$this->ignoreForeignKeyNames = $ignoreForeignKeyNames;
-	}
 
-	/**
-	 * @return mixed
-	 */
-	public function getTables()
-	{
-		return $this->listTableNames();
+    switch ($cfg['driver']) {
+      case 'pgsql':
+        $this->adapter = new \RunCli\Adapter\PgSql();
+        break;
+      case 'mysql':
+        $this->adapter = new \RunCli\Adapter\MySql();
+        break;
+      case 'sqlite':
+        $this->adapter = new \RunCli\Adapter\SqlLite();
+        break;
+      case 'sqlsrv':
+        $this->adapter = new \RunCli\Adapter\SqlSrv();
+        break;
+      default:
+        throw new \Exception( 'Database driver not supported: ' . $cfg['driver'] );
+        break;
+    }
 	}
 
 	public function getFields($table)
 	{
-    return $this->fieldGenerator->generate($table, $this, $this->database, $this->ignoreIndexNames);
+	  return (new FieldGenerator())->generate($table, $this, $this->database, $this->ignoreIndexNames);
 	}
 
 	public function getForeignKeyConstraints($table)
 	{
-    return $this->foreignKeyGenerator->generate($this->database, $table, $this, $this->ignoreForeignKeyNames);
+	  return (new ForeignKeyGenerator())->generate($this->database, $table, $this, $this->ignoreForeignKeyNames);
 	}
-
 
 	public function getTablePrefix()
   {
@@ -79,11 +85,13 @@ class SchemaGenerator {
    */
   public function hasTable($table)
   {
-    return DB::schema()->hasTable($table);
+    //return DB::schema()->hasTable($table);// TODO not work with postge
+    return $this->adapter->hasTable($table);
   }
 
   public function getData($table, $max)
   {
+    DB::connection()->setTablePrefix('');
     if (!$max) {
       return DB::table($table)->get();
     }
@@ -95,75 +103,34 @@ class SchemaGenerator {
    * Get all the tables
    * @return mixed
    */
-  protected function listTableNames()
+  public function listTableNames()
   {
-    $q = 'SELECT table_name FROM information_schema.tables WHERE table_schema = "'.$this->database.'"';
-    return DB::select($q);
+    return $this->adapter->listTableNames($this->database);
   }
 
 	public function getEnum($table)
   {
-//    $result = DB::table('information_schema.columns')//FIXME with prefix table bug
-//      ->where('table_schema', $this->database)
-//      ->where('table_name', $table)
-//      ->where('data_type', 'enum')
-//      ->get(['column_name','column_type']);
-    $q = 'select `column_name`, `column_type` 
-    from `information_schema`.`columns` 
-    where `table_schema` = "'.$this->database.'" 
-    and `table_name` = "'.$table.'" 
-    and `data_type` = "enum"';
-    return DB::select(DB::raw($q));
+    return $this->adapter->getEnum($table, $this->database);
   }
+
 
   public function listTableColumns($table)
   {
-//        $res =  DB::table('information_schema.columns')//FIXME with prefix table bug
-//            ->where('table_schema', '=', $this->database)
-//            ->where('table_name', '=', $table)
-//            ->get($this->selects);
-
-    $q = 'select *
-      from `information_schema`.`columns`
-      where `table_schema` = "'.$this->database.'" and `table_name` = "'.$table.'"';
-
-    return DB::select(DB::raw($q));
+    return $this->adapter->listTableColumns($table, $this->database);
   }
 
   public function listTableIndexes($table)
   {
-    $q = 'SHOW INDEX FROM ' . $table;
-    return DB::select(DB::raw($q));
+    return $this->adapter->listTableIndexes($table, $this->database);
   }
 
   public function listTableForeignKeys($table, $database)
   {
-    $q = $this->getListTableForeignKeysSQL($table, $database);
-    return DB::select(DB::raw($q));
+    return $this->adapter->listTableForeignKeys($table, $database);
   }
 
-  /**
-   * function from Doctrine\DBAL\Platforms  MySqlPlatform
-   *
-   * @param $table
-   * @param null $database
-   * @return string
-   */
-  public function getListTableForeignKeysSQL($table, $database = null)
+  public function createDatabase($schemaName, $charset, $collation)
   {
-    $sql = "SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ".
-      "k.`REFERENCED_COLUMN_NAME` /*!50116 , c.update_rule, c.delete_rule */ ".
-      "FROM information_schema.key_column_usage k /*!50116 ".
-      "INNER JOIN information_schema.referential_constraints c ON ".
-      "  c.constraint_name = k.constraint_name AND ".
-      "  c.table_name = '$table' */ WHERE k.table_name = '$table'";
-
-    if ($database) {
-      $sql .= " AND k.table_schema = '$database' /*!50116 AND c.constraint_schema = '$database' */";
-    }
-
-    $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
-
-    return $sql;
+    return $this->adapter->createDatabase($schemaName, $charset, $collation, $this->cfg);
   }
 }

@@ -122,7 +122,7 @@ trait CliTrait
   public function compile($template, array $data)
   {
     $template = $this->getTemplate($template);
-    $template = file_get_contents($template);
+    $template = $this->fileGet($template);
 
     foreach ($data as $key => $value) {
       $template = preg_replace("/\\$$key\\$/i", $value, $template);

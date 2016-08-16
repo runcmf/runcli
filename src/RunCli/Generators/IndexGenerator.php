@@ -22,74 +22,42 @@ class IndexGenerator {
 	 */
 	private $ignoreIndexNames;
 
-	/**
-	 * @param string                                      $table Table Name
-	 * @param \RunCli\Generators\SchemaGenerator $schema
-	 * @param bool                                        $ignoreIndexNames
-	 */
-	public function __construct($table, $schema, $ignoreIndexNames)
-	{
-		$this->indexes = $this->multiFieldIndexes = [];
-		$this->ignoreIndexNames = $ignoreIndexNames;
+	public function get($table, $schema, $ignoreIndexNames)
+  {
+    $this->indexes = $this->multiFieldIndexes = [];
+    $this->ignoreIndexNames = $ignoreIndexNames;
 
-		$this->indexesList = $schema->listTableIndexes( $table );
-		foreach ( $this->indexesList as $index ) {
-			$indexArray = $this->indexToArray($table, $index);
-			if ( count( $indexArray['columns'] ) === 1 ) {
-				$columnName = $indexArray['columns'][0];
-				$this->indexes[ $columnName ] = /*(object)*/ $indexArray;
-			} else {
+    $this->indexesList = $schema->listTableIndexes( $table );
+    if(empty($this->indexesList)){
+      return [];
+    }
+    foreach ( $this->indexesList as $index ) {
+      $indexArray = $this->indexToArray($table, $index);
+      if ( count( $indexArray['columns'] ) === 1 ) {
+        $columnName = $indexArray['columns'][0];
+        $this->indexes[ $columnName ] = (object) $indexArray;
+      } else {
         if(in_array($indexArray, $this->multiFieldIndexes))
         {
           continue;
         }
-				$this->multiFieldIndexes[] = /*(object)*/ $indexArray;
-			}
-		}
-	}
-
-  protected function compareStr($str, $needle)
-  {
-    if(stripos($str, $needle) === false){
-      return false;
-    }else{
-      return true;
-    }
-  }
-
-  protected function getMultiple($key)
-  {
-    $ret = [];
-    foreach ($this->indexesList as $item) {
-      if($item->Key_name === $key->Key_name)
-      {
-        $ret[] = $item->Column_name;
+        $this->multiFieldIndexes[] = (object) $indexArray;
       }
     }
-    return $ret;
   }
 
 	protected function indexToArray($table, $index)
 	{
-    //if ( $index->isPrimary() ) {// DBAL method
-		if ( $this->compareStr($index->Key_name, 'PRIMARY') ) {
+    if ( $index->isPrimary() ) {
 			$type = 'primary';
-    //} elseif ( $index->isUnique() ) {
-		} elseif ( $index->Non_unique === 0 ) {
+    } elseif ( $index->isUnique() ) {
 			$type = 'unique';
 		} else {
 			$type = 'index';
 		}
-		$array = ['type' => $type, 'name' => null, 'columns' => $this->getMultiple($index)/*getColumns()*/];
-		if ( ! $this->ignoreIndexNames and
-      !$this->isDefaultIndexName(
-        $table,
-        $index->Key_name,//getName()
-        $type,
-        $this->getMultiple($index)//getColumns()
-        )
-    ) {
-			$array['name'] = $index->Key_name;//getName();
+    $array = ['type' => $type, 'name' => null, 'columns' => $index->getColumns()];
+		if ( ! $this->ignoreIndexNames && !$this->isDefaultIndexName($table, $index->getName(), $type, $index->getColumns())) {
+			$array['name'] = $index->getName();
 		}
 		return $array;
 	}

@@ -1,5 +1,7 @@
 <?php namespace RunCli\Generators;
 
+use Illuminate\Database\Capsule\Manager as DB;
+
 class FieldGenerator {
 
 	/**
@@ -23,6 +25,8 @@ class FieldGenerator {
 	 */
 	protected $database;
 
+  private $tableWithOutPrefix;
+
 	/**
 	 * Create array of all the fields for a table
 	 *
@@ -35,11 +39,14 @@ class FieldGenerator {
 	public function generate($table, $schema, $database, $ignoreIndexNames)
 	{
 		$this->database = $database;
+    $this->tableWithOutPrefix = str_replace($schema->getTablePrefix(),'',$table);
 		$columns = $schema->listTableColumns( $table );
 		if ( empty( $columns ) ) return false;
-		$indexGenerator = new IndexGenerator($table, $schema, $ignoreIndexNames);
+		$indexGenerator = new IndexGenerator();
+    $indexGenerator->get($table, $schema, $ignoreIndexNames);
 		$fields = $this->setEnum($schema, $this->getFields($columns, $indexGenerator), $table);
 		$indexes = $this->getMultiFieldIndexes($indexGenerator);
+
 		return array_merge($fields, $indexes);
 	}
 
@@ -51,48 +58,26 @@ class FieldGenerator {
 	 */
 	protected function setEnum(& $schema, array $fields, $table)
 	{
+    $driver = DB::connection()->getDriverName();
 		foreach ($schema->getEnum($table) as $column) {
-			$fields[$column->column_name]['type'] = 'enum';
-			$fields[$column->column_name]['args'] = str_replace('enum(', 'array(', $column->column_type);
+			$fields[$column['column_name']]['type'] = 'enum';
+
+      //psql (PostgreSQL) 9.4.9 array_agg aggregate to braces {} without quotes
+      // json_agg to [] but with double quote
+      if($driver === 'pgsql'){
+        $ar = str_replace(['{','}'],'',$column['column_type']);
+//        $ar = str_replace('"','\'',$column['column_type']);
+        $fields[$column['column_name']]['args'] = '[\''.$ar.'\']';
+      }else {
+        $fields[$column['column_name']]['args'] = str_replace('enum(', 'array(', $column['column_type']);
+      }
 		}
+
 		return $fields;
 	}
 
-	protected function getColLength($col)//FIXME expand types
-  {
-    if(in_array($col->DATA_TYPE,
-      [
-        'int',
-        'float',
-        'decimal',
-        'double'
-      ]
-    )){
-      return $col->NUMERIC_PRECISION;
-    }elseif(in_array($col->DATA_TYPE,
-      [
-        'blob',
-        'varchar',
-        'varbinary',
-        'text',
-        'char'
-      ]
-    )){
-      return $col->CHARACTER_MAXIMUM_LENGTH;
-    }
-  }
-
-  protected function compareStr($str, $needle)
-  {
-    if(strpos($str, $needle)){
-      return true;
-    }else{
-      return false;
-    }
-  }
-
 	/**
-	 * @param \ArrayObject $columns
+	 * @param Doctrine\DBAL\Schema\Column object $columns
 	 * @param IndexGenerator $indexGenerator
 	 * @return array
 	 */
@@ -100,11 +85,12 @@ class FieldGenerator {
 	{
 		$fields = [];
 		foreach ($columns as $column) {
-			$name = $column->COLUMN_NAME;//getName(); //DBAL column method
-			$type = $column->DATA_TYPE;//getType()->getName(); expand fieldTypeMap
-			$length = $this->getColLength($column);//$column->getLength();
-			$default = $column->COLUMN_DEFAULT;//getDefault();
-			$nullable = ($column->IS_NULLABLE === 'NO');//getNotNull());
+			$name = $column->getName();
+//			$type = $column->getType()->getName();
+      $type = $column->getType();
+			$length = $column->getLength();
+			$default = $column->getDefault();
+			$nullable = (!$column->getNotNull());
 			$index = $indexGenerator->getIndex($name);
 
 			$decorators = null;
@@ -117,57 +103,59 @@ class FieldGenerator {
 			// Different rules for different type groups
 			if (in_array($type, ['tinyInteger', 'smallInteger', 'integer', 'bigInteger'])) {
 				// Integer
-        //if ($type == 'integer' and $column->getUnsigned() and $column->getAutoincrement()) {
-				if ($type == 'integer' and
-          $this->compareStr($column->COLUMN_TYPE, 'unsign') and
-          $this->compareStr($column->EXTRA, 'auto_inc')
-        ) {
+        if ((in_array($type, ['smallInteger', 'integer'])) &&
+//          $column->getUnsigned() &&
+          $column->getAutoincrement())
+        {
 					$type = 'increments';
 					$index = null;
-				} else {
-          //if ($column->getUnsigned()) {
-					if ($this->compareStr($column->COLUMN_TYPE, 'unsign')) {
+          $nullable = false;
+//				} elseif (
+//				  $type == 'tinyInteger' &&
+//          $this->compareStr($column->COLUMN_TYPE, 'tinyint(1)') &&
+//          !$column->getUnsigned()
+//        ) {
+//          $type = 'boolean';
+//          $index = null;//TODO index boolean ??? we'll let it go at that
+        } else {
+          if ($column->getUnsigned()) {
 						$decorators[] = 'unsigned';
 					}
-//          if ($column->getAutoincrement()) {
-					if ($this->compareStr($column->EXTRA, 'auto_inc')) {
+          if ($column->getAutoincrement()) {
 						$args = 'true';
 						$index = null;
 					}
 				}
 			} elseif ($type == 'dateTime') {
-				if ($name == 'deleted_at' and $nullable) {
+				if ($name == 'deleted_at' && $nullable) {
 					$nullable = false;
 					$type = 'softDeletes';
 					$name = '';
-				} elseif ($name == 'created_at' and isset($fields['updated_at'])) {
+				} elseif ($name == 'created_at' && isset($fields['updated_at'])) {
 					$fields['updated_at'] = ['field' => '', 'type' => 'timestamps'];
 					continue;
-				} elseif ($name == 'updated_at' and isset($fields['created_at'])) {
+				} elseif ($name == 'updated_at' && isset($fields['created_at'])) {
 					$fields['created_at'] = ['field' => '', 'type' => 'timestamps'];
 					continue;
 				}
 			} elseif (in_array($type, ['decimal', 'float', 'double'])) {
 				// Precision based numbers
-				$args = $this->getPrecision(
-				  $this->getColLength($column),//$column->getPrecision()
-          ($column->NUMERIC_SCALE === null) ? 0 : $column->NUMERIC_SCALE//$column->getScale()
-        );
-        //if ($column->getUnsigned()) {
-				if ($this->compareStr($column->COLUMN_TYPE, 'unsign')) {
+				$args = $this->getPrecision($column->getPrecision(), $column->getScale());
+        if ($column->getUnsigned()) {
 					$decorators[] = 'unsigned';
 				}
 			} else {
 				// Probably not a number (string/char)
-//				if ($type === 'string' /*&& $column->getFixed()*/) {//FIXME
-//					$type = 'char';
-//				}
+				if ($type === 'string' && $column->getFixed()) {
+					$type = 'char';
+				}
 				$args = $this->getLength($length);
 			}
-
 			if ($nullable) $decorators[] = 'nullable';
 			if ($default !== null) $decorators[] = $this->getDefault($default, $type);
 			if ($index) $decorators[] = $this->decorate($index->type, $index->name);
+      // fix index name for postgres
+//      if ($index) $decorators[] = $this->decorate($index->type, $this->tableWithOutPrefix.'_'.$index->name);
 
 			$field = ['field' => $name, 'type' => $type];
 			if ($decorators) $field['decorators'] = $decorators;
@@ -183,7 +171,7 @@ class FieldGenerator {
 	 */
 	protected function getLength($length)
 	{
-		if ($length and $length !== 255) {
+		if ($length && $length !== 255) {
 			return $length;
 		}
 	}
@@ -199,7 +187,7 @@ class FieldGenerator {
 			if ($type == 'dateTime')
 				$type = 'timestamp';
 			$default = $this->decorate('DB::raw', $default);
-		} elseif (in_array($type, ['string', 'text']) or !is_numeric($default)) {
+		} elseif (in_array($type, ['string', 'text']) || !is_numeric($default)) {
 			$default = $this->argsToString($default);
 		}
 		return $this->decorate('default', $default, '');
@@ -233,7 +221,7 @@ class FieldGenerator {
 			$args = implode( $seperator, $args );
 		}
 
-		return $quotes . $args . $quotes;
+    return $quotes . $args . $quotes;
 	}
 
 	/**
@@ -262,11 +250,13 @@ class FieldGenerator {
 		$indexes = [];
 		foreach ($indexGenerator->getMultiFieldIndexes() as $index) {
 			$indexArray = [
-				'field' => $index['columns'],//$index->columns,
-				'type' => $index['type'],
+				'field' => $index->columns,
+				'type' => $index->type,
 			];
-			if ($index['name']) {
-				$indexArray['args'] = $this->argsToString($index['name']);
+			if ($index->name) {
+				$indexArray['args'] = $this->argsToString($index->name);
+        // fix index name for postgres
+//        $indexArray['args'] = "'". $this->tableWithOutPrefix . '_' . $index->name ."'";
 			}
 			$indexes[] = $indexArray;
 		}

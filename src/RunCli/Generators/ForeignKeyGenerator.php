@@ -1,18 +1,22 @@
 <?php namespace RunCli\Generators;
 
-class ForeignKeyGenerator {
-
+class ForeignKeyGenerator
+{
 	/**
 	 * @var string
 	 */
 	protected $table;
+  /**
+   * @var array current table keys
+   */
+  protected $foreignKeys=[];
 
 	/**
 	 * Get array of foreign keys
 	 *
-	 * @param string                                      $table Table Name
-	 * @param \Doctrine\DBAL\Schema\AbstractSchemaManager $schema
-	 * @param                                             $ignoreForeignKeyNames
+	 * @param string                              $table Table Name
+	 * @param \RunCli\Generators\SchemaGenerator  $schema
+	 * @param                                     $ignoreForeignKeyNames
 	 *
 	 * @return array
 	 */
@@ -21,18 +25,18 @@ class ForeignKeyGenerator {
 		$this->table = $table;
 		$fields = [];
 
-		$foreignKeys = $schema->listTableForeignKeys($table, $database);
+		$this->foreignKeys = $schema->listTableForeignKeys($table, $database);
 
-		if ( empty( $foreignKeys ) ) return array();
+		if ( empty( $this->foreignKeys ) ) return array();
 
-		foreach ( $foreignKeys as $foreignKey ) {
+		foreach ( $this->foreignKeys as $foreignKey ) {
 			$fields[] = [
 				'name' => $this->getName($foreignKey, $ignoreForeignKeyNames),
-				'field' => $foreignKey->getLocalColumns()[0],
-				'references' => $foreignKey->getForeignColumns()[0],
-				'on' => $foreignKey->getForeignTableName(),
-				'onUpdate' => $foreignKey->hasOption('onUpdate') ? $foreignKey->getOption('onUpdate') : 'RESTRICT',
-				'onDelete' => $foreignKey->hasOption('onDelete') ? $foreignKey->getOption('onDelete') : 'RESTRICT',
+        'field' => $foreignKey->getLocalColumns()[0],
+        'references' => $foreignKey->getForeignColumns()[0],
+        'on' => $foreignKey->getForeignTableName(),
+        'onUpdate' => $foreignKey->hasOption('onUpdate') ? $foreignKey->getOption('onUpdate') : 'RESTRICT',
+        'onDelete' => $foreignKey->hasOption('onDelete') ? $foreignKey->getOption('onDelete') : 'RESTRICT',
 			];
 		}
 		return $fields;
@@ -45,10 +49,10 @@ class ForeignKeyGenerator {
 	 * @return null
 	 */
 	private function getName($foreignKey, $ignoreForeignKeyNames) {
-		if ($ignoreForeignKeyNames or $this->isDefaultName($foreignKey)) {
+		if ($ignoreForeignKeyNames || $this->isDefaultName($foreignKey)) {
 			return null;
 		}
-		return $foreignKey->getName();
+    return $foreignKey->getName();
 	}
 
 	/**
@@ -69,7 +73,6 @@ class ForeignKeyGenerator {
 	protected function createIndexName($column)
 	{
 		$index = strtolower($this->table.'_'.$column.'_foreign');
-
 		return str_replace(array('-', '.'), '_', $index);
 	}
 }

@@ -22,6 +22,7 @@ class MigrationsGeneratorCommand extends Command
   protected $schema;
   private $counter;
   private $fileName;
+  private $datePrefix;
 
   protected function configure()
   {
@@ -87,12 +88,13 @@ EOT
     }
 
     $this->schema = new SchemaGenerator(
+      $this->cfg['settings']['db'],
       $database,
       $ignore,
       $ignoreFKNames
     );
 
-    $tables = $this->schema->getTables();
+    $tables = $this->schema->listTableNames();
 
     $this->sectionMessage('1', '<fg=magenta>Setting up Tables and Index Migrations</>');
     $this->generate( 'create', $tables );
@@ -130,7 +132,7 @@ EOT
     }
     $this->counter=0;
     foreach ( $tables as $table ) {
-      $tableWithOutPrefix = substr($table->table_name, strlen($this->schema->getTablePrefix()));
+      $tableWithOutPrefix = str_replace($this->schema->getTablePrefix(),'',$table->table_name);
       $this->migrationName = $prefix .'_'. $tableWithOutPrefix .'_table';
       $this->fileName = $this->datePrefix .'_'.$prefix .'_'. $tableWithOutPrefix .'_table.php';
       $this->method = $method;
@@ -152,19 +154,11 @@ EOT
       throw new RuntimeException( $this->getMigrationPath().' path not found!' );
     }
 
-    try
-    {
-      $template = $this->compile(
-        'migration',
-        $this->getTemplateData()
-      );
+    try {
+      $template = $this->compile('migration', $this->getTemplateData());
       $this->fileSave($this->getMigrationPath() . '/' . $file, $template);
-
       $this->output->writeln('<comment>Generated migration:</comment> <fg=cyan;options=bold>' . $file . '</>');
-    }
-
-    catch (RuntimeException $e)
-    {
+    } catch (RuntimeException $e) {
       $this->output->writeln('<error>The file, ' . $file . ', already exists! I don\'t want to overwrite it.</error>');
     }
   }
@@ -176,7 +170,7 @@ EOT
    */
   private function getTemplateData()
   {
-    $table = substr($this->table, strlen($this->schema->getTablePrefix()));
+    $table = str_replace($this->schema->getTablePrefix(),'',$this->table);
 
     if ( $this->method == 'create' ) {
       $up = (new AddToTable($this->file))->run($this->fields, $table, 'create');

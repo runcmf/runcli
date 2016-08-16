@@ -77,7 +77,7 @@ EOT
       $database = $this->getDatabaseName();
     }
 
-    $this->schema = new SchemaGenerator($database);
+    $this->schema = new SchemaGenerator($this->cfg['settings']['db'], $database);
 
     $this->output->writeln('<fg=blue>Preparing seeders classes from database:</> <fg=red;options=bold>' . $this->getDatabaseName() . '</>');
 
@@ -89,8 +89,7 @@ EOT
     }
 
 //    $tables        = explode(',', $this->input->getArgument('tables'));
-    $tables = $this->schema->getTables();
-
+    $tables = $this->schema->listTableNames();
     $chunkSize     = (int)($this->input->getOption('max'));
     $prerunEvents  = explode(',', $this->input->getOption('prerun'));
     $postrunEvents = explode(',', $this->input->getOption('postrun'));
@@ -100,7 +99,7 @@ EOT
     $tableIncrement = 0;
     foreach ($tables as $table) {
       $table = trim($table->table_name);
-      $table = substr($table, strlen($this->schema->getTablePrefix()));
+//      $table = str_replace($this->schema->getTablePrefix(),'',$table);
       $prerunEvent = null;
       if (isset($prerunEvents[$tableIncrement])) {
         $prerunEvent = trim($prerunEvents[$tableIncrement]);
@@ -117,7 +116,6 @@ EOT
       // if file does not exist or force option is turned on generate seeder
       if (!$this->fileExists($fileName) || $this->input->getOption('force')) {
         $this->generateSeed($table, $database, $chunkSize, $prerunEvent, $postrunEvent);
-//        $this->output->writeln('<comment>Generated seed:</comment> <fg=cyan;options=bold>' . $table . '</>');
         continue;
       }
 
