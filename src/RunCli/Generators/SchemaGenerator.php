@@ -4,45 +4,45 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 class SchemaGenerator
 {
-	/**
-	 * @var schema
-	 */
-	protected $schema;
+  /**
+   * @var schema
+   */
+  protected $schema;
 
-	/**
-	 * @var string
-	 */
-	protected $database;
-	/**
-	 * @var bool
-	 */
-	private $ignoreIndexNames;
-	/**
-	 * @var bool
-	 */
-	private $ignoreForeignKeyNames;
+  /**
+   * @var string
+   */
+  protected $database;
+  /**
+   * @var bool
+   */
+  private $ignoreIndexNames;
+  /**
+   * @var bool
+   */
+  private $ignoreForeignKeyNames;
 
   private $adapter;
   private $cfg;
 
-	/**
+  /**
    * @param array $cfg DB config
-	 * @param string $database
-	 * @param string $ignoreIndexNames
-	 * @param string $ignoreForeignKeyNames
-	 */
-	public function __construct($cfg, $database='', $ignoreIndexNames='', $ignoreForeignKeyNames='')
-	{
-	  $this->cfg = $cfg;
+   * @param string $database
+   * @param string $ignoreIndexNames
+   * @param string $ignoreForeignKeyNames
+   */
+  public function __construct($cfg, $database = '', $ignoreIndexNames = '', $ignoreForeignKeyNames = '')
+  {
+    $this->cfg = $cfg;
 
-    if(!$database){
+    if (!$database) {
       $this->database = $cfg['database'];
-    }else {
+    } else {
       $this->database = $database;
     }
 
-		$this->ignoreIndexNames = $ignoreIndexNames;
-		$this->ignoreForeignKeyNames = $ignoreForeignKeyNames;
+    $this->ignoreIndexNames = $ignoreIndexNames;
+    $this->ignoreForeignKeyNames = $ignoreForeignKeyNames;
 
     switch ($cfg['driver']) {
       case 'pgsql':
@@ -58,24 +58,24 @@ class SchemaGenerator
         $this->adapter = new \RunCli\Adapter\SqlSrv();
         break;
       default:
-        throw new \Exception( 'Database driver not supported: ' . $cfg['driver'] );
+        throw new \Exception('Database driver not supported: ' . $cfg['driver']);
         break;
     }
-	}
+  }
 
-	public function getFields($table)
-	{
-	  return (new FieldGenerator())->generate($table, $this, $this->database, $this->ignoreIndexNames);
-	}
-
-	public function getForeignKeyConstraints($table)
-	{
-	  return (new ForeignKeyGenerator())->generate($this->database, $table, $this, $this->ignoreForeignKeyNames);
-	}
-
-	public function getTablePrefix()
+  public function getFields($table)
   {
-    return DB::getTablePrefix();
+    return (new FieldGenerator())->generate($table, $this, $this->database, $this->ignoreIndexNames);
+  }
+
+  public function getForeignKeyConstraints($table)
+  {
+    return (new ForeignKeyGenerator())->generate($this->database, $table, $this, $this->ignoreForeignKeyNames);
+  }
+
+  public function getTablePrefix()
+  {
+    return DB::connection()->getConfig('prefix');
   }
 
   /**
@@ -85,7 +85,6 @@ class SchemaGenerator
    */
   public function hasTable($table)
   {
-    //return DB::schema()->hasTable($table);// TODO not work with postge
     return $this->adapter->hasTable($table);
   }
 
@@ -108,7 +107,7 @@ class SchemaGenerator
     return $this->adapter->listTableNames($this->database);
   }
 
-	public function getEnum($table)
+  public function getEnum($table)
   {
     return $this->adapter->getEnum($table, $this->database);
   }

@@ -1,8 +1,10 @@
 [![Latest Version on Packagist][ico-version]][link-packagist] [![Software License][ico-license]][link-license] [![Total Downloads][ico-downloads]][link-downloads]
 #RunCli
-Standalone command line interface.
-    `migrate, seed, generate migrations and seeds from existing database, generate resources, create database`
-supported driver `mysql, pgsql`
+Standalone command line interface.  
+`migrate, seed, generate migrations and seeds from existing database, generate resources, create database`  
+supported driver `mysql, pgsql, sqlite`  
+  
+    
 ``` bash
 $ mysql -V
 mysql  Ver 15.1 Distrib 10.1.16-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2
@@ -11,11 +13,15 @@ mysql  Ver 15.1 Distrib 10.1.16-MariaDB, for debian-linux-gnu (x86_64) using rea
 $ psql --version
 psql (PostgreSQL) 9.4.9
 ```
-
+``` bash
+$ sqlite3
+SQLite version 3.8.2 2013-12-06 14:53:30
+```
+  
 main objective was generate [Eloquent ORM](https://github.com/illuminate/database) migrations from existing database outside [Laravel](https://github.com/laravel/laravel) 
 in my case [Eloquent ORM](https://github.com/illuminate/database) used with [Slim 3 Framework](https://github.com/slimphp/Slim)
-
-
+  
+  
 ## Install
 * Via Composer, command line
 ``` bash
@@ -40,9 +46,12 @@ script looking config in paths:
 app/Config/Settings.php [runcmf/runcmf-skeleton](https://bitbucket.org/1f7/runcmf-skeleton.git)
 app/settings.php [akrabat/slim3-skeleton](https://github.com/akrabat/slim3-skeleton)
 
-config must contain [db] section.
+config must contain ['settings']['db'] section.
 for example:
 ``` php
+defined('DS') || define('DS', DIRECTORY_SEPARATOR);
+define('DIR', realpath(__DIR__.'/../../') .DS);
+
 return [
   'settings' => [
     'displayErrorDetails' => true,
@@ -50,15 +59,44 @@ return [
     'addContentLengthHeader' => false,
     'routerCacheFile' => DIR . 'var/cache/fastroute.cache',
     'db' => [// database configuration
-      'driver'    => 'mysql',
-      'engine'    => 'MyISAM',//InnoDB',
-      'host'      => 'localhost',
-      'database'  => 'run_test',
-      'username'  => 'root',
-      'password'  => '',
-      'charset'   => 'utf8',
-      'collation' => 'utf8_unicode_ci',
-      'prefix'    => 'mybb_',
+      'default' => 'sqlite',
+      'connections' => [
+        'sqlite' => [
+          'driver'   => 'sqlite',
+          'database' => DIR . 'var/database/database.sqlite',
+          'prefix'   => 'mybb_',
+        ],
+        'mysql' => [
+          'driver'    => 'mysql',
+//          'engine'    => 'MyISAM',
+          'engine'    => 'InnoDB',
+          'host'      => '127.0.0.1',
+          'database'  => 'run',
+          'username'  => 'dbuser',
+          'password'  => '123',
+          'charset'   => 'utf8',
+          'collation' => 'utf8_unicode_ci',
+          'prefix'    => 'mybb_',
+        ],
+        'pgsql' => [
+          'driver'   => 'pgsql',
+          'host'     => '127.0.0.1',
+          'database' => 'run',
+          'username' => 'dbuser',
+          'password' => '123',
+          'charset'  => 'utf8',
+          'prefix'   => 'mybb_',
+          'schema'   => 'public',
+        ],
+        'sqlsrv' => [
+          'driver'   => 'sqlsrv',
+          'host'     => '127.0.0.1',
+          'database' => 'run',
+          'username' => 'dbuser',
+          'password' => '123',
+          'prefix'   => '',
+        ],
+      ],
     ],
     ...
     ...
@@ -77,7 +115,7 @@ php cli seed:fill
 ![example](ss/ss2.png "seed fill")
 
 ## Generate migration from existing database:
-> redone from [Xethron](https://github.com/Xethron/migrations-generator) but **without** Laravel, way/generators and doctrine/dbal 
+> redone from [Xethron](https://github.com/Xethron/migrations-generator) with part of code doctrine/dbal but **without** Laravel, way/generators 
 
 ``` bash
 php cli migrate:generate
@@ -128,27 +166,7 @@ refactor your code with **ipAddress** [Eloquent ORM ipAddress](https://laravel.c
 $table->ipAddress('visitor');
 ```
 solution 3:
-http://stackoverflow.com/questions/17795517/laravel-4-saving-ip-address-to-model
-
-and so on :)
-
-#### PostgreSQL
-
-```php
-$table->enum('enum_from_type', ['enum1', 'enum2', 'enum3', 'enum4'])->nullable()->default('enum2');
-```
-migrated to
-```bash
-Column          Type
-enum_from_type	character varying(255) NULL [enum2]	
-```
-solution:
-if need build enum by hand.
-
-Eloquent ORM not work with PostgreSQL:
-```php
-DB::schema()->hasTable($table);
-```
+http://stackoverflow.com/questions/17795517/laravel-4-saving-ip-address-to-model  
 
 
 ## Generate seeds from existing database:
@@ -157,23 +175,27 @@ DB::schema()->hasTable($table);
 ``` bash
 php cli seed:generate
 ```
-![example](ss/ss4.png "seed generate")
+![example](ss/ss4.png "seed generate")  
 
-help soon...
-
+  
 ## Create database
 ``` bash
 php cli make:db [schema] [charset] [collation]
 ```
-schema - OPTIONAL, schema name from config or exception generated;
-charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**];
-collation - OPTIONAL, default value [MySQL = **utf8_general_ci**, PostgreSQL = **en_US.UTF-8**];
+schema - OPTIONAL, schema name from config or exception generated; 
+charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**]; 
+collation - OPTIONAL, default value [MySQL = **utf8_general_ci**, PostgreSQL = **en_US.UTF-8**];  
 
 
+## Security
 
-### Who do I talk to? ###
+If you discover any security related issues, please email to 1f7.wizard@gmail.com or create an issue.
 
-* 1f7.wizard ( at ) gmail.com
+## Credits
+
+* https://bitbucket.org/1f7
+* https://github.com/1f7
+* http://runetcms.ru
 * http://runcmf.ru
 
 ## License

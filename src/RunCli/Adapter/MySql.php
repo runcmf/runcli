@@ -64,8 +64,6 @@ class MySql extends Common implements AdapterInterface
             'set'           => 'simple_array',
         );
 
-  private $tablePrefix;
-
   public function hasTable($table)
   {
     DB::connection()->setTablePrefix('');
@@ -143,7 +141,7 @@ class MySql extends Common implements AdapterInterface
     $q .= ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
 
     $t = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
-    $this->tablePrefix = DB::connection()->getTablePrefix();
+
     return $this->_getPortableTableForeignKeysList($t);
   }
 
@@ -313,7 +311,7 @@ class MySql extends Common implements AdapterInterface
           'local' => [],
           'foreign' => [],
 //          'foreignTable' => $value['referenced_table_name'],
-          'foreignTable' => str_replace($this->tablePrefix,'',$value['referenced_table_name']),
+          'foreignTable' => str_replace(DB::connection()->getConfig('prefix'),'',$value['referenced_table_name']),
           'onDelete' => $value['delete_rule'],
           'onUpdate' => $value['update_rule'],
         ];

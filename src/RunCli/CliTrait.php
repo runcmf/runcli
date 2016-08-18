@@ -18,6 +18,7 @@
 namespace RunCli;
 
 use Exception;
+use Illuminate\Database\Capsule\Manager as DB;
 
 trait CliTrait
 {
@@ -48,14 +49,25 @@ trait CliTrait
     defined('DIR') or define('DIR', $root);
   }
 
+  protected function getDBConfig()
+  {
+    if(!0 === count($this->cfg)){
+      $_driver = $this->cfg['settings']['db']['default'];
+      return $this->cfg['settings']['db']['connections'][$_driver];
+    }else{
+      return false;
+    }
+  }
+
   protected function initDB()
   {
     $this->getConfig();
     // Register the database connection with Eloquent
+    $_driver = $this->cfg['settings']['db']['default'];
     $capsule = new \Illuminate\Database\Capsule\Manager;
-    $capsule->addConnection($this->cfg['settings']['db']);
+    $capsule->addConnection($this->cfg['settings']['db']['connections'][$_driver]);
     $capsule->setAsGlobal();
-    $capsule::connection()->enableQueryLog();
+    //$capsule::connection()->enableQueryLog();
     $capsule->bootEloquent();
     // set timezone for timestamps etc
     //date_default_timezone_set('UTC');
@@ -114,7 +126,7 @@ trait CliTrait
     try {
       return __DIR__.'/templates/'.$tpl.'.stub';
     } catch (Exception $e){
-      throw new Exception('No template not found :(');
+      throw new Exception('Template '.$tpl.' not found :(');
     }
 
   }
@@ -130,13 +142,9 @@ trait CliTrait
     return $template;
   }
 
-  /**
-   * Get the database name from the app/config/database.php file
-   * @return String
-   */
   protected function getDatabaseName()
   {
-    return $this->cfg['settings']['db']['database'];
+    return DB::connection()->getDatabaseName();
   }
 
   protected function blockMessage($title, $message, $style = 'info')

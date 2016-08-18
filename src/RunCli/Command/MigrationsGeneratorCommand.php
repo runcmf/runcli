@@ -86,9 +86,9 @@ EOT
         $this->output->writeln('<comment>Ignoring the '.$table.' table</comment>');
       }
     }
-
+    $_driver = $this->cfg['settings']['db']['default'];
     $this->schema = new SchemaGenerator(
-      $this->cfg['settings']['db'],
+      $this->cfg['settings']['db']['connections'][$_driver],
       $database,
       $ignore,
       $ignoreFKNames

@@ -77,7 +77,8 @@ EOT
       $database = $this->getDatabaseName();
     }
 
-    $this->schema = new SchemaGenerator($this->cfg['settings']['db'], $database);
+    $_driver = $this->cfg['settings']['db']['default'];
+    $this->schema = new SchemaGenerator($this->cfg['settings']['db']['connections'][$_driver], $database);
 
     $this->output->writeln('<fg=blue>Preparing seeders classes from database:</> <fg=red;options=bold>' . $this->getDatabaseName() . '</>');
 
@@ -146,12 +147,12 @@ EOT
     $className = $this->mapFileNameToClassName($fname);
     // Get template for a seed file contents
     $stub = $this->fileGet( $this->getTemplate('seed') );
-
     // Get a populated stub file
     $seedContent = $this->populateStub(
       $className,
       $stub,
-      $table,
+      str_replace($this->schema->getTablePrefix(),'',$table),
+//      $table,
       $dataArray,
       null,
       $prerunEvent,
@@ -172,10 +173,10 @@ EOT
    */
   public function repackSeedData($data)
   {
-    $dataArray = array();
+    $dataArray = [];
     if (is_array($data)) {
       foreach ($data as $row) {
-        $rowArray = array();
+        $rowArray = [];
         foreach ($row as $columnName => $columnValue) {
           $rowArray[$columnName] = $columnValue;
         }
@@ -378,6 +379,7 @@ EOT
     if (!$this->schema->hasTable($table)) {
       throw new Exception('Table '.$table.' was not found.');
     }
+    $table = str_replace($this->schema->getTablePrefix(),'',$table);
     return date( $this->dateTemplate ).'_'.$table.'_table_seeds.php';
   }
 }

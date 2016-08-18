@@ -20,7 +20,7 @@ class ForeignKeyGenerator
 	 *
 	 * @return array
 	 */
-	public function generate($database, $table, $schema, $ignoreForeignKeyNames)
+	public function generate($database, $table, SchemaGenerator $schema, $ignoreForeignKeyNames)
 	{
 		$this->table = $table;
 		$fields = [];

@@ -1,17 +1,18 @@
-CHANGELOG
-=========
-2016-08-16, v0.0.5
------------------
+# CHANGELOG
+
+### 2016-08-18, v0.0.5
+* sqlite ready
+* change db driver config
+
+### 2016-08-16, v0.0.5
 * Add adapters: mysql, pgsql, sqlite, sqlsrv from Doctrine DBAL
 * ready mysql, pgsql
 * Now work with foreign keys
 * Fix some logical error
 
-2016-08-12, v0.0.4
------------------
+### 2016-08-12, v0.0.4
 * Added create db (php cli make:db)
 * Fix PDOException
 
-2016-08-06
-------------------
+### 2016-08-06
 * initial commit

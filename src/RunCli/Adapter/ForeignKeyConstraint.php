@@ -19,7 +19,7 @@
 
 namespace RunCli\Adapter;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+//use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * An abstraction class for a foreign key constraint.
@@ -97,37 +97,37 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         $this->_options = $options;
     }
 
-    /**
-     * Returns the name of the referencing table
-     * the foreign key constraint is associated with.
-     *
-     * @return string
-     */
-    public function getLocalTableName()
-    {
-        return $this->_localTable->getName();
-    }
+//    /**
+//     * Returns the name of the referencing table
+//     * the foreign key constraint is associated with.
+//     *
+//     * @return string
+//     */
+//    public function getLocalTableName()
+//    {
+//        return $this->_localTable->getName();
+//    }
 
-    /**
-     * Sets the Table instance of the referencing table
-     * the foreign key constraint is associated with.
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table Instance of the referencing table.
-     *
-     * @return void
-     */
-    public function setLocalTable(Table $table)
-    {
-        $this->_localTable = $table;
-    }
+//    /**
+//     * Sets the Table instance of the referencing table
+//     * the foreign key constraint is associated with.
+//     *
+//     * @param \Doctrine\DBAL\Schema\Table $table Instance of the referencing table.
+//     *
+//     * @return void
+//     */
+//    public function setLocalTable(Table $table)
+//    {
+//        $this->_localTable = $table;
+//    }
 
-    /**
-     * @return Table
-     */
-    public function getLocalTable()
-    {
-        return $this->_localTable;
-    }
+//    /**
+//     * @return Table
+//     */
+//    public function getLocalTable()
+//    {
+//        return $this->_localTable;
+//    }
 
     /**
      * Returns the names of the referencing table columns
@@ -140,48 +140,48 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         return array_keys($this->_localColumnNames);
     }
 
-    /**
-     * Returns the quoted representation of the referencing table column names
-     * the foreign key constraint is associated with.
-     *
-     * But only if they were defined with one or the referencing table column name
-     * is a keyword reserved by the platform.
-     * Otherwise the plain unquoted value as inserted is returned.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
-     *
-     * @return array
-     */
-    public function getQuotedLocalColumns(AbstractPlatform $platform)
-    {
-        $columns = array();
+//    /**
+//     * Returns the quoted representation of the referencing table column names
+//     * the foreign key constraint is associated with.
+//     *
+//     * But only if they were defined with one or the referencing table column name
+//     * is a keyword reserved by the platform.
+//     * Otherwise the plain unquoted value as inserted is returned.
+//     *
+//     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+//     *
+//     * @return array
+//     */
+//    public function getQuotedLocalColumns(AbstractPlatform $platform)
+//    {
+//        $columns = array();
+//
+//        foreach ($this->_localColumnNames as $column) {
+//            $columns[] = $column->getQuotedName($platform);
+//        }
+//
+//        return $columns;
+//    }
 
-        foreach ($this->_localColumnNames as $column) {
-            $columns[] = $column->getQuotedName($platform);
-        }
+//    /**
+//     * Returns unquoted representation of local table column names for comparison with other FK
+//     *
+//     * @return array
+//     */
+//    public function getUnquotedLocalColumns()
+//    {
+//        return array_map(array($this, 'trimQuotes'), $this->getLocalColumns());
+//    }
 
-        return $columns;
-    }
-
-    /**
-     * Returns unquoted representation of local table column names for comparison with other FK
-     *
-     * @return array
-     */
-    public function getUnquotedLocalColumns()
-    {
-        return array_map(array($this, 'trimQuotes'), $this->getLocalColumns());
-    }
-
-    /**
-     * Returns unquoted representation of foreign table column names for comparison with other FK
-     *
-     * @return array
-     */
-    public function getUnquotedForeignColumns()
-    {
-        return array_map(array($this, 'trimQuotes'), $this->getForeignColumns());
-    }
+//    /**
+//     * Returns unquoted representation of foreign table column names for comparison with other FK
+//     *
+//     * @return array
+//     */
+//    public function getUnquotedForeignColumns()
+//    {
+//        return array_map(array($this, 'trimQuotes'), $this->getForeignColumns());
+//    }
 
     /**
      * {@inheritdoc}
@@ -193,24 +193,24 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         return $this->getLocalColumns();
     }
 
-    /**
-     * Returns the quoted representation of the referencing table column names
-     * the foreign key constraint is associated with.
-     *
-     * But only if they were defined with one or the referencing table column name
-     * is a keyword reserved by the platform.
-     * Otherwise the plain unquoted value as inserted is returned.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
-     *
-     * @see getQuotedLocalColumns
-     *
-     * @return array
-     */
-    public function getQuotedColumns(AbstractPlatform $platform)
-    {
-        return $this->getQuotedLocalColumns($platform);
-    }
+//    /**
+//     * Returns the quoted representation of the referencing table column names
+//     * the foreign key constraint is associated with.
+//     *
+//     * But only if they were defined with one or the referencing table column name
+//     * is a keyword reserved by the platform.
+//     * Otherwise the plain unquoted value as inserted is returned.
+//     *
+//     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+//     *
+//     * @see getQuotedLocalColumns
+//     *
+//     * @return array
+//     */
+//    public function getQuotedColumns(AbstractPlatform $platform)
+//    {
+//        return $this->getQuotedLocalColumns($platform);
+//    }
 
     /**
      * Returns the name of the referenced table
@@ -223,34 +223,34 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         return $this->_foreignTableName->getName();
     }
 
-    /**
-     * Returns the non-schema qualified foreign table name.
-     *
-     * @return string
-     */
-    public function getUnqualifiedForeignTableName()
-    {
-        $parts = explode(".", $this->_foreignTableName->getName());
+//    /**
+//     * Returns the non-schema qualified foreign table name.
+//     *
+//     * @return string
+//     */
+//    public function getUnqualifiedForeignTableName()
+//    {
+//        $parts = explode('.', $this->_foreignTableName->getName());
+//
+//        return strtolower(end($parts));
+//    }
 
-        return strtolower(end($parts));
-    }
-
-    /**
-     * Returns the quoted representation of the referenced table name
-     * the foreign key constraint is associated with.
-     *
-     * But only if it was defined with one or the referenced table name
-     * is a keyword reserved by the platform.
-     * Otherwise the plain unquoted value as inserted is returned.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
-     *
-     * @return string
-     */
-    public function getQuotedForeignTableName(AbstractPlatform $platform)
-    {
-        return $this->_foreignTableName->getQuotedName($platform);
-    }
+//    /**
+//     * Returns the quoted representation of the referenced table name
+//     * the foreign key constraint is associated with.
+//     *
+//     * But only if it was defined with one or the referenced table name
+//     * is a keyword reserved by the platform.
+//     * Otherwise the plain unquoted value as inserted is returned.
+//     *
+//     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+//     *
+//     * @return string
+//     */
+//    public function getQuotedForeignTableName(AbstractPlatform $platform)
+//    {
+//        return $this->_foreignTableName->getQuotedName($platform);
+//    }
 
     /**
      * Returns the names of the referenced table columns
@@ -263,28 +263,28 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         return array_keys($this->_foreignColumnNames);
     }
 
-    /**
-     * Returns the quoted representation of the referenced table column names
-     * the foreign key constraint is associated with.
-     *
-     * But only if they were defined with one or the referenced table column name
-     * is a keyword reserved by the platform.
-     * Otherwise the plain unquoted value as inserted is returned.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
-     *
-     * @return array
-     */
-    public function getQuotedForeignColumns(AbstractPlatform $platform)
-    {
-        $columns = array();
-
-        foreach ($this->_foreignColumnNames as $column) {
-            $columns[] = $column->getQuotedName($platform);
-        }
-
-        return $columns;
-    }
+//    /**
+//     * Returns the quoted representation of the referenced table column names
+//     * the foreign key constraint is associated with.
+//     *
+//     * But only if they were defined with one or the referenced table column name
+//     * is a keyword reserved by the platform.
+//     * Otherwise the plain unquoted value as inserted is returned.
+//     *
+//     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+//     *
+//     * @return array
+//     */
+//    public function getQuotedForeignColumns(AbstractPlatform $platform)
+//    {
+//        $columns = array();
+//
+//        foreach ($this->_foreignColumnNames as $column) {
+//            $columns[] = $column->getQuotedName($platform);
+//        }
+//
+//        return $columns;
+//    }
 
     /**
      * Returns whether or not a given option
@@ -364,26 +364,26 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         return false;
     }
 
-    /**
-     * Checks whether this foreign key constraint intersects the given index columns.
-     *
-     * Returns `true` if at least one of this foreign key's local columns
-     * matches one of the given index's columns, `false` otherwise.
-     *
-     * @param Index $index The index to be checked against.
-     *
-     * @return boolean
-     */
-    public function intersectsIndexColumns(Index $index)
-    {
-        foreach ($index->getColumns() as $indexColumn) {
-            foreach ($this->_localColumnNames as $localColumn) {
-                if (strtolower($indexColumn) === strtolower($localColumn->getName())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
+//    /**
+//     * Checks whether this foreign key constraint intersects the given index columns.
+//     *
+//     * Returns `true` if at least one of this foreign key's local columns
+//     * matches one of the given index's columns, `false` otherwise.
+//     *
+//     * @param Index $index The index to be checked against.
+//     *
+//     * @return boolean
+//     */
+//    public function intersectsIndexColumns(Index $index)
+//    {
+//        foreach ($index->getColumns() as $indexColumn) {
+//            foreach ($this->_localColumnNames as $localColumn) {
+//                if (strtolower($indexColumn) === strtolower($localColumn->getName())) {
+//                    return true;
+//                }
+//            }
+//        }
+//
+//        return false;
+//    }
 }

@@ -70,18 +70,18 @@ EOT
 
     $this->getConfig();// no ret val
 
-    $schemaName = $input->getArgument('schema') ?: $this->cfg['settings']['db']['database'];
+    $_driver = $this->cfg['settings']['db']['default'];
+    $schemaName = $input->getArgument('schema') ?: $this->cfg['settings']['db']['connections'][$_driver]['database'];
     $charset = $input->getArgument('charset');
     $collation = $input->getArgument('collation');
 
 
     $schema = new SchemaGenerator(
-      $this->cfg['settings']['db']
+      $this->cfg['settings']['db']['connections'][$_driver]
 //      $database,
 //      $ignore,
 //      $ignoreFKNames
     );
-
 
     if($schema->createDatabase($schemaName, $charset, $collation))
     {

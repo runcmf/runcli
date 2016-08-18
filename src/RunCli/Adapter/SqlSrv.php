@@ -50,6 +50,11 @@ class SqlSrv extends Common implements AdapterInterface
             'uniqueidentifier' => 'guid',
         );
 
+  public function hasTable($table)
+  {
+    return DB::schema()->hasTable($table);
+  }
+
   public function listTableNames($database)
   {
     // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
