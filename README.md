@@ -42,9 +42,9 @@ $ composer update
 * copy or `ln -s` cli to site_root
 
 #Config:
-script looking config in paths:
-app/Config/Settings.php [runcmf/runcmf-skeleton](https://bitbucket.org/1f7/runcmf-skeleton.git)
-app/settings.php [akrabat/slim3-skeleton](https://github.com/akrabat/slim3-skeleton)
+script looking config in paths:  
+app/Config/Settings.php [runcmf/runcmf-skeleton](https://bitbucket.org/1f7/runcmf-skeleton.git)  
+app/settings.php [akrabat/slim3-skeleton](https://github.com/akrabat/slim3-skeleton)  
 
 config must contain ['settings']['db'] section.
 for example:

@@ -65,9 +65,11 @@ class PgSql extends Common implements AdapterInterface
 
   public function hasTable($table)
   {
-    $q = "SELECT count(*) FROM information_schema.tables WHERE table_name = '$table';";
-    $t = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
-    return (isset($t[0]) && $t[0] > 0);
+//    $q = "SELECT count(*) FROM information_schema.tables WHERE table_name = '$table';";
+//    $t = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
+//    return (isset($t[0]) && $t[0] > 0);
+    DB::connection()->setTablePrefix('');// check exist config 'schema'   => 'your_schema'
+    return DB::schema()->hasTable($table);
   }
 
   public function listTableNames($database)

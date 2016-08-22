@@ -82,8 +82,9 @@ class SqlLite extends Common implements AdapterInterface
 
   public function listTableColumns($table, $database)
   {
-    $table = str_replace('.', '__', $table);
-    $q = "PRAGMA table_info('$table')";
+//    $table = str_replace('.', '__', $table);
+//    $q = "PRAGMA table_info('str_replace('.', '__', $table)')";
+      $q = 'pragma table_info('.str_replace('.', '__', $table).')';
 
     $v= DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
 
