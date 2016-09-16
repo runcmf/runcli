@@ -182,14 +182,14 @@ php cli seed:generate
 ``` bash
 php cli make:db [schema] [charset] [collation]
 ```
-schema - OPTIONAL, schema name from config or exception generated; 
-charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**]; 
+schema - OPTIONAL, schema name from config or exception generated;  
+charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**];  
 collation - OPTIONAL, default value [MySQL = **utf8_general_ci**, PostgreSQL = **en_US.UTF-8**];  
 
 
 ## Security
 
-If you discover any security related issues, please email to 1f7.wizard@gmail.com or create an issue.
+If you discover any security related issues, please email to 1f7.wizard( at )gmail.com or create an issue.
 
 ## Credits
 
@@ -200,8 +200,7 @@ If you discover any security related issues, please email to 1f7.wizard@gmail.co
 
 ## License
 
-Apache License
-Version 2.0. Please see [License File](LICENSE.md) for more information.
+[Apache License Version 2.0](LICENSE.md)
 
 [ico-version]: https://img.shields.io/packagist/v/runcmf/runcli.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-Apache%202-green.svg?style=flat-square
