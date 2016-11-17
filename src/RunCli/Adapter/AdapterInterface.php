@@ -21,11 +21,17 @@ namespace RunCli\Adapter;
 
 interface AdapterInterface
 {
-  public function hasTable($table);
-  public function listTableNames($database);
-  public function getEnum($table, $database);
-  public function listTableColumns($table, $database);
-  public function listTableIndexes($table, $database);
-  public function listTableForeignKeys($table, $database);
-  public function createDatabase($schemaName, $charset, $collation, $cfg);
+    public function hasTable($table);
+
+    public function listTableNames($database);
+
+    public function getEnum($table, $database);
+
+    public function listTableColumns($table, $database);
+
+    public function listTableIndexes($table, $database);
+
+    public function listTableForeignKeys($table, $database);
+
+    public function createDatabase($schemaName, $charset, $collation, $cfg);
 }

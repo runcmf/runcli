@@ -22,12 +22,11 @@ class ModelCommand extends Command
                 InputArgument::REQUIRED,
                 'What do you want the model to be called?'
             )
-             ->addArgument(
+            ->addArgument(
                 'methods',
                 InputArgument::IS_ARRAY,
                 'What methods do you want (separate multiple method with a space)?'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -56,18 +55,18 @@ class ModelCommand extends Command
 
         $this->makeModel();
 
-        $output->writeln("<info>Model ".$this->modelName." created with ".count($this->methods)." methods</>");
+        $output->writeln("<info>Model " . $this->modelName . " created with " . count($this->methods) . " methods</>");
     }
 
     public function makeModel()
     {
 
-$data = "<?php
+        $data = "<?php
 namespace App\Models;
 
 use Core\Model;
 
-class ".ucwords($this->modelName)." extends Model
+class " . ucwords($this->modelName) . " extends Model
 {
     public function __construct()
     {
@@ -75,17 +74,17 @@ class ".ucwords($this->modelName)." extends Model
     }
     ";
 
-if (is_array($this->methods)) {
-    foreach ($this->methods as $method) {
-    $data .="
+        if (is_array($this->methods)) {
+            foreach ($this->methods as $method) {
+                $data .= "
     public function $method()
     {
 
     }\n";
-    }
-}
-$data .="}
+            }
+        }
+        $data .= "}
 ";
-        file_put_contents("app/Models/".ucwords($this->modelName).".php", $data);
+        file_put_contents("app/Models/" . ucwords($this->modelName) . ".php", $data);
     }
 }

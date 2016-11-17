@@ -28,460 +28,460 @@ namespace RunCli\Adapter;
  */
 class Column extends AbstractAsset
 {
-  /**
-   * @var Type
-   */
-  protected $_type;
+    /**
+     * @var Type
+     */
+    protected $_type;
 
-  /**
-   * @var integer|null
-   */
-  protected $_length;
+    /**
+     * @var integer|null
+     */
+    protected $_length;
 
-  /**
-   * @var integer
-   */
-  protected $_precision = 10;
+    /**
+     * @var integer
+     */
+    protected $_precision = 10;
 
-  /**
-   * @var integer
-   */
-  protected $_scale = 0;
+    /**
+     * @var integer
+     */
+    protected $_scale = 0;
 
-  /**
-   * @var boolean
-   */
-  protected $_unsigned = false;
+    /**
+     * @var boolean
+     */
+    protected $_unsigned = false;
 
-  /**
-   * @var boolean
-   */
-  protected $_fixed = false;
+    /**
+     * @var boolean
+     */
+    protected $_fixed = false;
 
-  /**
-   * @var boolean
-   */
-  protected $_notnull = true;
+    /**
+     * @var boolean
+     */
+    protected $_notnull = true;
 
-  /**
-   * @var string|null
-   */
-  protected $_default = null;
+    /**
+     * @var string|null
+     */
+    protected $_default = null;
 
-  /**
-   * @var boolean
-   */
-  protected $_autoincrement = false;
+    /**
+     * @var boolean
+     */
+    protected $_autoincrement = false;
 
-  /**
-   * @var array
-   */
-  protected $_platformOptions = array();
+    /**
+     * @var array
+     */
+    protected $_platformOptions = array();
 
-  /**
-   * @var string|null
-   */
-  protected $_columnDefinition = null;
+    /**
+     * @var string|null
+     */
+    protected $_columnDefinition = null;
 
-  /**
-   * @var string|null
-   */
-  protected $_comment = null;
+    /**
+     * @var string|null
+     */
+    protected $_comment = null;
 
-  /**
-   * @var array
-   */
-  protected $_customSchemaOptions = array();
+    /**
+     * @var array
+     */
+    protected $_customSchemaOptions = array();
 
-  /**
-   * Creates a new Column.
-   *
-   * @param string $columnName
-   * @param Type $type
-   * @param array $options
-   */
-  public function __construct($columnName, /*Type*/
-                              $type, array $options = array())
-  {
-    $this->_setName($columnName);
-    $this->setType($type);
-    $this->setOptions($options);
-  }
-
-  /**
-   * @param array $options
-   *
-   * @return Column
-   */
-  public function setOptions(array $options)
-  {
-    foreach ($options as $name => $value) {
-      $method = 'set' . $name;
-      if (method_exists($this, $method)) {
-        $this->$method($value);
-      }
+    /**
+     * Creates a new Column.
+     *
+     * @param string $columnName
+     * @param Type $type
+     * @param array $options
+     */
+    public function __construct($columnName, /*Type*/
+                                $type, array $options = array())
+    {
+        $this->_setName($columnName);
+        $this->setType($type);
+        $this->setOptions($options);
     }
 
-    return $this;
-  }
+    /**
+     * @param array $options
+     *
+     * @return Column
+     */
+    public function setOptions(array $options)
+    {
+        foreach ($options as $name => $value) {
+            $method = 'set' . $name;
+            if (method_exists($this, $method)) {
+                $this->$method($value);
+            }
+        }
 
-  /**
-   * @param Type $type
-   *
-   * @return Column
-   */
-  public function setType(/*Type*/
-    $type)
-  {
-    $this->_type = $type;
-
-    return $this;
-  }
-
-  /**
-   * @param integer|null $length
-   *
-   * @return Column
-   */
-  public function setLength($length)
-  {
-    if ($length !== null) {
-      $this->_length = (int)$length;
-    } else {
-      $this->_length = null;
+        return $this;
     }
 
-    return $this;
-  }
+    /**
+     * @param Type $type
+     *
+     * @return Column
+     */
+    public function setType(/*Type*/
+        $type)
+    {
+        $this->_type = $type;
 
-  /**
-   * @param integer $precision
-   *
-   * @return Column
-   */
-  public function setPrecision($precision)
-  {
-    if (!is_numeric($precision)) {
-      $precision = 10; // defaults to 10 when no valid precision is given.
+        return $this;
     }
 
-    $this->_precision = (int)$precision;
+    /**
+     * @param integer|null $length
+     *
+     * @return Column
+     */
+    public function setLength($length)
+    {
+        if ($length !== null) {
+            $this->_length = (int)$length;
+        } else {
+            $this->_length = null;
+        }
 
-    return $this;
-  }
-
-  /**
-   * @param integer $scale
-   *
-   * @return Column
-   */
-  public function setScale($scale)
-  {
-    if (!is_numeric($scale)) {
-      $scale = 0;
+        return $this;
     }
 
-    $this->_scale = (int)$scale;
+    /**
+     * @param integer $precision
+     *
+     * @return Column
+     */
+    public function setPrecision($precision)
+    {
+        if (!is_numeric($precision)) {
+            $precision = 10; // defaults to 10 when no valid precision is given.
+        }
 
-    return $this;
-  }
+        $this->_precision = (int)$precision;
 
-  /**
-   * @param boolean $unsigned
-   *
-   * @return Column
-   */
-  public function setUnsigned($unsigned)
-  {
-    $this->_unsigned = (bool)$unsigned;
+        return $this;
+    }
 
-    return $this;
-  }
+    /**
+     * @param integer $scale
+     *
+     * @return Column
+     */
+    public function setScale($scale)
+    {
+        if (!is_numeric($scale)) {
+            $scale = 0;
+        }
 
-  /**
-   * @param boolean $fixed
-   *
-   * @return Column
-   */
-  public function setFixed($fixed)
-  {
-    $this->_fixed = (bool)$fixed;
+        $this->_scale = (int)$scale;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @param boolean $notnull
-   *
-   * @return Column
-   */
-  public function setNotnull($notnull)
-  {
-    $this->_notnull = (bool)$notnull;
+    /**
+     * @param boolean $unsigned
+     *
+     * @return Column
+     */
+    public function setUnsigned($unsigned)
+    {
+        $this->_unsigned = (bool)$unsigned;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @param mixed $default
-   *
-   * @return Column
-   */
-  public function setDefault($default)
-  {
-    $this->_default = $default;
+    /**
+     * @param boolean $fixed
+     *
+     * @return Column
+     */
+    public function setFixed($fixed)
+    {
+        $this->_fixed = (bool)$fixed;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @param array $platformOptions
-   *
-   * @return Column
-   */
-  public function setPlatformOptions(array $platformOptions)
-  {
-    $this->_platformOptions = $platformOptions;
+    /**
+     * @param boolean $notnull
+     *
+     * @return Column
+     */
+    public function setNotnull($notnull)
+    {
+        $this->_notnull = (bool)$notnull;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @param string $name
-   * @param mixed $value
-   *
-   * @return Column
-   */
-  public function setPlatformOption($name, $value)
-  {
-    $this->_platformOptions[$name] = $value;
+    /**
+     * @param mixed $default
+     *
+     * @return Column
+     */
+    public function setDefault($default)
+    {
+        $this->_default = $default;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @param string $value
-   *
-   * @return Column
-   */
-  public function setColumnDefinition($value)
-  {
-    $this->_columnDefinition = $value;
+    /**
+     * @param array $platformOptions
+     *
+     * @return Column
+     */
+    public function setPlatformOptions(array $platformOptions)
+    {
+        $this->_platformOptions = $platformOptions;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @return Type
-   */
-  public function getType()
-  {
-    return $this->_type;
-  }
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return Column
+     */
+    public function setPlatformOption($name, $value)
+    {
+        $this->_platformOptions[$name] = $value;
 
-  /**
-   * @return integer|null
-   */
-  public function getLength()
-  {
-    return $this->_length;
-  }
+        return $this;
+    }
 
-  /**
-   * @return integer
-   */
-  public function getPrecision()
-  {
-    return $this->_precision;
-  }
+    /**
+     * @param string $value
+     *
+     * @return Column
+     */
+    public function setColumnDefinition($value)
+    {
+        $this->_columnDefinition = $value;
 
-  /**
-   * @return integer
-   */
-  public function getScale()
-  {
-    return $this->_scale;
-  }
+        return $this;
+    }
 
-  /**
-   * @return boolean
-   */
-  public function getUnsigned()
-  {
-    return $this->_unsigned;
-  }
+    /**
+     * @return Type
+     */
+    public function getType()
+    {
+        return $this->_type;
+    }
 
-  /**
-   * @return boolean
-   */
-  public function getFixed()
-  {
-    return $this->_fixed;
-  }
+    /**
+     * @return integer|null
+     */
+    public function getLength()
+    {
+        return $this->_length;
+    }
 
-  /**
-   * @return boolean
-   */
-  public function getNotnull()
-  {
-    return $this->_notnull;
-  }
+    /**
+     * @return integer
+     */
+    public function getPrecision()
+    {
+        return $this->_precision;
+    }
 
-  /**
-   * @return string|null
-   */
-  public function getDefault()
-  {
-    return $this->_default;
-  }
+    /**
+     * @return integer
+     */
+    public function getScale()
+    {
+        return $this->_scale;
+    }
 
-  /**
-   * @return array
-   */
-  public function getPlatformOptions()
-  {
-    return $this->_platformOptions;
-  }
+    /**
+     * @return boolean
+     */
+    public function getUnsigned()
+    {
+        return $this->_unsigned;
+    }
 
-  /**
-   * @param string $name
-   *
-   * @return boolean
-   */
-  public function hasPlatformOption($name)
-  {
-    return isset($this->_platformOptions[$name]);
-  }
+    /**
+     * @return boolean
+     */
+    public function getFixed()
+    {
+        return $this->_fixed;
+    }
 
-  /**
-   * @param string $name
-   *
-   * @return mixed
-   */
-  public function getPlatformOption($name)
-  {
-    return $this->_platformOptions[$name];
-  }
+    /**
+     * @return boolean
+     */
+    public function getNotnull()
+    {
+        return $this->_notnull;
+    }
 
-  /**
-   * @return string|null
-   */
-  public function getColumnDefinition()
-  {
-    return $this->_columnDefinition;
-  }
+    /**
+     * @return string|null
+     */
+    public function getDefault()
+    {
+        return $this->_default;
+    }
 
-  /**
-   * @return boolean
-   */
-  public function getAutoincrement()
-  {
-    return $this->_autoincrement;
-  }
+    /**
+     * @return array
+     */
+    public function getPlatformOptions()
+    {
+        return $this->_platformOptions;
+    }
 
-  /**
-   * @param boolean $flag
-   *
-   * @return Column
-   */
-  public function setAutoincrement($flag)
-  {
-    $this->_autoincrement = $flag;
+    /**
+     * @param string $name
+     *
+     * @return boolean
+     */
+    public function hasPlatformOption($name)
+    {
+        return isset($this->_platformOptions[$name]);
+    }
 
-    return $this;
-  }
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getPlatformOption($name)
+    {
+        return $this->_platformOptions[$name];
+    }
 
-  /**
-   * @param string $comment
-   *
-   * @return Column
-   */
-  public function setComment($comment)
-  {
-    $this->_comment = $comment;
+    /**
+     * @return string|null
+     */
+    public function getColumnDefinition()
+    {
+        return $this->_columnDefinition;
+    }
 
-    return $this;
-  }
+    /**
+     * @return boolean
+     */
+    public function getAutoincrement()
+    {
+        return $this->_autoincrement;
+    }
 
-  /**
-   * @return string|null
-   */
-  public function getComment()
-  {
-    return $this->_comment;
-  }
+    /**
+     * @param boolean $flag
+     *
+     * @return Column
+     */
+    public function setAutoincrement($flag)
+    {
+        $this->_autoincrement = $flag;
 
-  /**
-   * @param string $name
-   * @param mixed $value
-   *
-   * @return Column
-   */
-  public function setCustomSchemaOption($name, $value)
-  {
-    $this->_customSchemaOptions[$name] = $value;
+        return $this;
+    }
 
-    return $this;
-  }
+    /**
+     * @param string $comment
+     *
+     * @return Column
+     */
+    public function setComment($comment)
+    {
+        $this->_comment = $comment;
 
-  /**
-   * @param string $name
-   *
-   * @return boolean
-   */
-  public function hasCustomSchemaOption($name)
-  {
-    return isset($this->_customSchemaOptions[$name]);
-  }
+        return $this;
+    }
 
-  /**
-   * @param string $name
-   *
-   * @return mixed
-   */
-  public function getCustomSchemaOption($name)
-  {
-    return $this->_customSchemaOptions[$name];
-  }
+    /**
+     * @return string|null
+     */
+    public function getComment()
+    {
+        return $this->_comment;
+    }
 
-  /**
-   * @param array $customSchemaOptions
-   *
-   * @return Column
-   */
-  public function setCustomSchemaOptions(array $customSchemaOptions)
-  {
-    $this->_customSchemaOptions = $customSchemaOptions;
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return Column
+     */
+    public function setCustomSchemaOption($name, $value)
+    {
+        $this->_customSchemaOptions[$name] = $value;
 
-    return $this;
-  }
+        return $this;
+    }
 
-  /**
-   * @return array
-   */
-  public function getCustomSchemaOptions()
-  {
-    return $this->_customSchemaOptions;
-  }
+    /**
+     * @param string $name
+     *
+     * @return boolean
+     */
+    public function hasCustomSchemaOption($name)
+    {
+        return isset($this->_customSchemaOptions[$name]);
+    }
 
-  /**
-   * @return array
-   */
-  public function toArray()
-  {
-    return array_merge(array(
-      'name' => $this->_name,
-      'type' => $this->_type,
-      'default' => $this->_default,
-      'notnull' => $this->_notnull,
-      'length' => $this->_length,
-      'precision' => $this->_precision,
-      'scale' => $this->_scale,
-      'fixed' => $this->_fixed,
-      'unsigned' => $this->_unsigned,
-      'autoincrement' => $this->_autoincrement,
-      'columnDefinition' => $this->_columnDefinition,
-      'comment' => $this->_comment,
-    ), $this->_platformOptions, $this->_customSchemaOptions);
-  }
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getCustomSchemaOption($name)
+    {
+        return $this->_customSchemaOptions[$name];
+    }
+
+    /**
+     * @param array $customSchemaOptions
+     *
+     * @return Column
+     */
+    public function setCustomSchemaOptions(array $customSchemaOptions)
+    {
+        $this->_customSchemaOptions = $customSchemaOptions;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomSchemaOptions()
+    {
+        return $this->_customSchemaOptions;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array_merge(array(
+            'name' => $this->_name,
+            'type' => $this->_type,
+            'default' => $this->_default,
+            'notnull' => $this->_notnull,
+            'length' => $this->_length,
+            'precision' => $this->_precision,
+            'scale' => $this->_scale,
+            'fixed' => $this->_fixed,
+            'unsigned' => $this->_unsigned,
+            'autoincrement' => $this->_autoincrement,
+            'columnDefinition' => $this->_columnDefinition,
+            'comment' => $this->_comment,
+        ), $this->_platformOptions, $this->_customSchemaOptions);
+    }
 }

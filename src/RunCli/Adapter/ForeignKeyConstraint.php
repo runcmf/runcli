@@ -69,11 +69,11 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
     /**
      * Initializes the foreign key constraint.
      *
-     * @param array        $localColumnNames   Names of the referencing table columns.
-     * @param Table|string $foreignTableName   Referenced table.
-     * @param array        $foreignColumnNames Names of the referenced table columns.
-     * @param string|null  $name               Name of the foreign key constraint.
-     * @param array        $options            Options associated with the foreign key constraint.
+     * @param array $localColumnNames Names of the referencing table columns.
+     * @param Table|string $foreignTableName Referenced table.
+     * @param array $foreignColumnNames Names of the referenced table columns.
+     * @param string|null $name Name of the foreign key constraint.
+     * @param array $options Options associated with the foreign key constraint.
      */
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = array())
     {
@@ -356,7 +356,7 @@ class ForeignKeyConstraint extends AbstractAsset// implements Constraint
         if (isset($this->_options[$event])) {
             $onEvent = strtoupper($this->_options[$event]);
 
-            if ( ! in_array($onEvent, array('NO ACTION', 'RESTRICT'))) {
+            if (!in_array($onEvent, array('NO ACTION', 'RESTRICT'))) {
                 return $onEvent;
             }
         }

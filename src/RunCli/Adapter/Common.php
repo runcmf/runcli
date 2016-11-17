@@ -21,83 +21,83 @@ namespace RunCli\Adapter;
 
 class Common
 {
-  protected function mapType($dbType)
-  {
-    $dbType = strtolower($dbType);
-    if (!isset($this->doctrineTypeMapping[$dbType])) {
-      //throw new \Exception("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
-      return 'unknown';//FIXME
+    protected function mapType($dbType)
+    {
+        $dbType = strtolower($dbType);
+        if (!isset($this->doctrineTypeMapping[$dbType])) {
+            //throw new \Exception("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
+            return 'unknown';//FIXME
+        }
+
+        return $this->doctrineTypeMapping[$dbType];
     }
 
-    return $this->doctrineTypeMapping[$dbType];
-  }
+    /**
+     * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
+     * the type given as default.
+     *
+     * @param string $comment
+     * @param string $currentType
+     *
+     * @return string
+     */
+    protected function extractDoctrineTypeFromComment($comment, $currentType)
+    {
+        if (preg_match("(\(DC2Type:([a-zA-Z0-9_]+)\))", $comment, $match)) {
+            $currentType = $match[1];
+        }
 
-  /**
-   * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
-   * the type given as default.
-   *
-   * @param string $comment
-   * @param string $currentType
-   *
-   * @return string
-   */
-  protected function extractDoctrineTypeFromComment($comment, $currentType)
-  {
-    if (preg_match("(\(DC2Type:([a-zA-Z0-9_]+)\))", $comment, $match)) {
-      $currentType = $match[1];
+        return $currentType;
     }
 
-    return $currentType;
-  }
-
-  /**
-   * @param string $comment
-   * @param string $type
-   *
-   * @return string
-   */
-  protected function removeDoctrineTypeFromComment($comment, $type)
-  {
-    return str_replace('(DC2Type:'.$type.')', '', $comment);
-  }
-
-  /**
-   * Aggregates and groups the index results according to the required data result.
-   *
-   * @param array       $tableIndexRows
-   * @param string|null $tableName
-   *
-   * @return array
-   */
-  protected function getPortableTableIndexesList($tableIndexRows, $tableName=null)
-  {
-    $result = array();
-    foreach ($tableIndexRows as $tableIndex) {
-      $indexName = $keyName = $tableIndex['key_name'];
-      if ($tableIndex['primary']) {
-        $keyName = 'primary';
-      }
-      $keyName = strtolower($keyName);
-
-      if (!isset($result[$keyName])) {
-        $result[$keyName] = array(
-          'name' => $indexName,
-          'columns' => array($tableIndex['column_name']),
-          'unique' => $tableIndex['non_unique'] ? false : true,
-          'primary' => $tableIndex['primary'],
-          'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
-          'options' => isset($tableIndex['where']) ? array('where' => $tableIndex['where']) : array(),
-        );
-      } else {
-        $result[$keyName]['columns'][] = $tableIndex['column_name'];
-      }
+    /**
+     * @param string $comment
+     * @param string $type
+     *
+     * @return string
+     */
+    protected function removeDoctrineTypeFromComment($comment, $type)
+    {
+        return str_replace('(DC2Type:' . $type . ')', '', $comment);
     }
+
+    /**
+     * Aggregates and groups the index results according to the required data result.
+     *
+     * @param array $tableIndexRows
+     * @param string|null $tableName
+     *
+     * @return array
+     */
+    protected function getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    {
+        $result = array();
+        foreach ($tableIndexRows as $tableIndex) {
+            $indexName = $keyName = $tableIndex['key_name'];
+            if ($tableIndex['primary']) {
+                $keyName = 'primary';
+            }
+            $keyName = strtolower($keyName);
+
+            if (!isset($result[$keyName])) {
+                $result[$keyName] = array(
+                    'name' => $indexName,
+                    'columns' => array($tableIndex['column_name']),
+                    'unique' => $tableIndex['non_unique'] ? false : true,
+                    'primary' => $tableIndex['primary'],
+                    'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
+                    'options' => isset($tableIndex['where']) ? array('where' => $tableIndex['where']) : array(),
+                );
+            } else {
+                $result[$keyName]['columns'][] = $tableIndex['column_name'];
+            }
+        }
 
 //    $eventManager = $this->_platform->getEventManager();
 
-    $indexes = array();
-    foreach ($result as $indexKey => $data) {
-      $index = null;
+        $indexes = array();
+        foreach ($result as $indexKey => $data) {
+            $index = null;
 //      $defaultPrevented = false;
 //
 //      if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
@@ -109,14 +109,14 @@ class Common
 //      }
 
 //      if ( ! $defaultPrevented) {
-        $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
+            $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
 //      }
 
-      if ($index) {
-        $indexes[$indexKey] = $index;
-      }
-    }
+            if ($index) {
+                $indexes[$indexKey] = $index;
+            }
+        }
 
-    return $indexes;
-  }
+        return $indexes;
+    }
 }

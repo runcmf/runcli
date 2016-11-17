@@ -29,17 +29,17 @@ use RunCli\Command\ModelCommand;
 
 class Cli extends Application
 {
-  private $version = '0.0.4';
+    private $version = '0.0.4';
 
-  public function __construct($name)
-  {
-    parent::__construct($name, $this->version);
-    $this->add(new MakeDBCommand());
-    $this->add(new MigrateCommand());
-    $this->add(new MigrationsGeneratorCommand());
-    $this->add(new SeedCommand());
-    $this->add(new SeedGeneratorCommand());
+    public function __construct($name)
+    {
+        parent::__construct($name, $this->version);
+        $this->add(new MakeDBCommand());
+        $this->add(new MigrateCommand());
+        $this->add(new MigrationsGeneratorCommand());
+        $this->add(new SeedCommand());
+        $this->add(new SeedGeneratorCommand());
 //    $this->add(new ModelCommand());
 //    $this->add(new ControllerCommand());
-  }
+    }
 }

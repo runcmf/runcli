@@ -59,12 +59,12 @@ class Index extends AbstractAsset// implements Constraint
     private $options = array();
 
     /**
-     * @param string   $indexName
+     * @param string $indexName
      * @param string[] $columns
-     * @param boolean  $isUnique
-     * @param boolean  $isPrimary
+     * @param boolean $isUnique
+     * @param boolean $isPrimary
      * @param string[] $flags
-     * @param array    $options
+     * @param array $options
      */
     public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), array $options = array())
     {

@@ -26,24 +26,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MigrateCommand extends Command
 {
-  use CliTrait;
+    use CliTrait;
 
-  protected function configure()
-  {
-    $this
-      ->setName('migrate:fill')
-      ->setDescription('Migrate the database from given path. f.ex. vendor/runcmf/runbb')
-      ->addArgument(
-        'path',
-        InputArgument::OPTIONAL,
-        'Set Path Migrations Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
-      )
-      ->addArgument(
-        'arg',
-        InputArgument::OPTIONAL,
-        'arg [up]|down. OPTIONAL'
-      )
-      ->setHelp(<<<EOT
+    protected function configure()
+    {
+        $this
+            ->setName('migrate:fill')
+            ->setDescription('Migrate the database from given path. f.ex. vendor/runcmf/runbb')
+            ->addArgument(
+                'path',
+                InputArgument::OPTIONAL,
+                'Set Path Migrations Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
+            )
+            ->addArgument(
+                'arg',
+                InputArgument::OPTIONAL,
+                'arg [up]|down. OPTIONAL'
+            )
+            ->setHelp(<<<EOT
 Hardcoded path prefix 'DIR' - is path to site root and suffix 'var/migrations'.
 What in the middle is optional and you can set it or no.
 For example command <info>php cli migrate:fill</info>
@@ -57,46 +57,46 @@ php cli migrate:fill '' down
 php cli migrate:fill vendor/runcmf/runbb up
 php cli migrate:fill vendor/runcmf/runbb down
 EOT
-);
+            );
 
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output)
-  {
-    $this->initDB();
-    $this->input = $input;
-    $this->output = $output;
-
-    $path = $input->getArgument('path');
-    $arg = $input->getArgument('arg');
-
-    $this->setMigrationPath($path);
-
-    $files = $this->glob($this->getMigrationPath() . '/*_table.php');
-
-    if(empty($files)){
-      throw new \Exception( 'No migrations found :(' );
-    }
-    $cnt=0;
-    foreach ($files as $file) {
-      require_once($file);
-      $class = $this->mapFileNameToClassName(basename($file));
-      $obj = new $class;
-
-      if ($arg === 'down') {
-        $output->writeln('<question>'.$arg.'</question> migration <info>' . $class.'</info>');
-        $obj->down();
-      } else {
-        $arg = 'up';
-        $output->writeln('<question>'.$arg.'</question> migration <info>' . $class.'</info>');
-        $obj->up();
-      }
-      $cnt++;
     }
 
-    $this->blockMessage(
-      'Success!',
-      $cnt .' '. strtoupper($arg) . ' migrations done from: '.$this->migrationPath
-    );
-  }
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->initDB();
+        $this->input = $input;
+        $this->output = $output;
+
+        $path = $input->getArgument('path');
+        $arg = $input->getArgument('arg');
+
+        $this->setMigrationPath($path);
+
+        $files = $this->glob($this->getMigrationPath() . '/*_table.php');
+
+        if (empty($files)) {
+            throw new \Exception('No migrations found :(');
+        }
+        $cnt = 0;
+        foreach ($files as $file) {
+            require_once($file);
+            $class = $this->mapFileNameToClassName(basename($file));
+            $obj = new $class;
+
+            if ($arg === 'down') {
+                $output->writeln('<question>' . $arg . '</question> migration <info>' . $class . '</info>');
+                $obj->down();
+            } else {
+                $arg = 'up';
+                $output->writeln('<question>' . $arg . '</question> migration <info>' . $class . '</info>');
+                $obj->up();
+            }
+            $cnt++;
+        }
+
+        $this->blockMessage(
+            'Success!',
+            $cnt . ' ' . strtoupper($arg) . ' migrations done from: ' . $this->migrationPath
+        );
+    }
 }

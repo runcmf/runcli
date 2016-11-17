@@ -26,19 +26,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SeedCommand extends Command
 {
-  use CliTrait;
+    use CliTrait;
 
-  protected function configure()
-  {
-    $this
-      ->setName('seed:fill')
-      ->setDescription('Seed the database tables from given path. f.ex. vendor/runcmf/runbb')
-      ->addArgument(
-        'path',
-        InputArgument::OPTIONAL,
-        'Set Path Seeds Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
-      )
-      ->setHelp(<<<EOT
+    protected function configure()
+    {
+        $this
+            ->setName('seed:fill')
+            ->setDescription('Seed the database tables from given path. f.ex. vendor/runcmf/runbb')
+            ->addArgument(
+                'path',
+                InputArgument::OPTIONAL,
+                'Set Path Seeds Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
+            )
+            ->setHelp(<<<EOT
 Hardcoded path prefix 'DIR' - is path to site root and suffix 'var/seeds'.
 What in the middle is optional and you can set it or no.
 For example command <info>php cli seed:fill</info>
@@ -50,35 +50,35 @@ Example
 php cli seed:fill
 php cli seed:fill vendor/runcmf/runbb
 EOT
-      );
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output)
-  {
-    $this->initDB();
-    $this->input = $input;
-    $this->output = $output;
-
-    $this->setSeedPath( $input->getArgument('path') );
-
-    $files = $this->glob($this->getSeedPath() . '/*_seeds.php');
-
-    if(empty($files)){
-      throw new \Exception( 'No seeds found :(' );
-    }
-    $cnt=0;
-    foreach ($files as $file) {
-      require_once($file);
-      $class = $this->mapFileNameToClassName(basename($file));
-      $obj = new $class;
-      $cnt++;
-      $output->writeln('<question>filling</question> seed <info>' . $class.'</info>');
-      $obj->run();
+            );
     }
 
-    $this->blockMessage(
-      'Success!',
-      $cnt . ' seeds loading done from: '.$this->getSeedPath()
-    );
-  }
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->initDB();
+        $this->input = $input;
+        $this->output = $output;
+
+        $this->setSeedPath($input->getArgument('path'));
+
+        $files = $this->glob($this->getSeedPath() . '/*_seeds.php');
+
+        if (empty($files)) {
+            throw new \Exception('No seeds found :(');
+        }
+        $cnt = 0;
+        foreach ($files as $file) {
+            require_once($file);
+            $class = $this->mapFileNameToClassName(basename($file));
+            $obj = new $class;
+            $cnt++;
+            $output->writeln('<question>filling</question> seed <info>' . $class . '</info>');
+            $obj->run();
+        }
+
+        $this->blockMessage(
+            'Success!',
+            $cnt . ' seeds loading done from: ' . $this->getSeedPath()
+        );
+    }
 }

@@ -29,68 +29,67 @@ use Exception;
 
 class MakeDBCommand extends Command
 {
-  use CliTrait;
+    use CliTrait;
 
-  protected function configure()
-  {
-    $this
-      ->setName('make:db')
-      ->setDescription('Create database')
-      ->addArgument(
-        'schema',
-        InputArgument::OPTIONAL,
-        'Set new database schema name'
-      )
-      ->addArgument(
-        'charset',
-        InputArgument::OPTIONAL,
-        'DEFAULT CHARACTER SET  [OPTIONAL]'
-      )
-      ->addArgument(
-        'collation',
-        InputArgument::OPTIONAL,
-        'collation  OPTIONAL'
-      )
-      ->setHelp(<<<EOT
+    protected function configure()
+    {
+        $this
+            ->setName('make:db')
+            ->setDescription('Create database')
+            ->addArgument(
+                'schema',
+                InputArgument::OPTIONAL,
+                'Set new database schema name'
+            )
+            ->addArgument(
+                'charset',
+                InputArgument::OPTIONAL,
+                'DEFAULT CHARACTER SET  [OPTIONAL]'
+            )
+            ->addArgument(
+                'collation',
+                InputArgument::OPTIONAL,
+                'collation  OPTIONAL'
+            )
+            ->setHelp(<<<EOT
 php cli make:db [schema] [charset] [collation]
 
 schema - OPTIONAL, schema name from config or exception generated;
 charset - OPTIONAL, default value utf8;
 collation - OPTIONAL, default value utf8_general_ci;
 EOT
-);
-  }
+            );
+    }
 
-  protected function execute(InputInterface $input, OutputInterface $output)
-  {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
 //    $this->initDB();
 
-    $this->input = $input;
-    $this->output = $output;
+        $this->input = $input;
+        $this->output = $output;
 
-    $this->getConfig();// no ret val
+        $this->getConfig();// no ret val
 
-    $_driver = $this->cfg['settings']['db']['default'];
-    $schemaName = $input->getArgument('schema') ?: $this->cfg['settings']['db']['connections'][$_driver]['database'];
-    $charset = $input->getArgument('charset');
-    $collation = $input->getArgument('collation');
+        $_driver = $this->cfg['settings']['db']['default'];
+        $schemaName = $input->getArgument('schema') ?: $this->cfg['settings']['db']['connections'][$_driver]['database'];
+        $charset = $input->getArgument('charset');
+        $collation = $input->getArgument('collation');
 
 
-    $schema = new SchemaGenerator(
-      $this->cfg['settings']['db']['connections'][$_driver]
+        $schema = new SchemaGenerator(
+            $this->cfg['settings']['db']['connections'][$_driver]
 //      $database,
 //      $ignore,
 //      $ignoreFKNames
-    );
+        );
 
-    if($schema->createDatabase($schemaName, $charset, $collation))
-    {
-      $this->blockMessage(
-        'Success!',
-        'Database ' . $schemaName . ' crated!'
-      );
-    }else{
-      throw new Exception( 'Error create databse '.$schemaName.' :(' );
+        if ($schema->createDatabase($schemaName, $charset, $collation)) {
+            $this->blockMessage(
+                'Success!',
+                'Database ' . $schemaName . ' crated!'
+            );
+        } else {
+            throw new Exception('Error create databse ' . $schemaName . ' :(');
+        }
     }
-  }
 }
