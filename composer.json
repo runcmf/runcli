@@ -1,9 +1,8 @@
 {
   "name": "runcmf/runcli",
   "description": "RunCli - Command Line Interface. [migrate, seed, generate migrations and seeds from existing database, create database, generate resources and much more :)]",
-  "version": "0.0.6",
   "license": "Apache 2",
-  "type": "project",
+  "type": "library",
   "keywords": ["RunCMF", "Slim3", "Slim 3", "Eloquent ORM", "Cli", "database", "migration"],
   "authors": [
     {
