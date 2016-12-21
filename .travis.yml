@@ -13,12 +13,19 @@ matrix:
     - php: 7.1
 
 before_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then composer require satooshi/php-coveralls:1.* -n ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then composer install -n ; fi
+  composer install -n ;
+  - if [[ "$TRAVIS_PHP_VERSION" =~ ^7 ]]; then
+      composer require satooshi/php-coveralls:1.* -n ;
+    fi
 
 script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then phpunit --coverage-clover clover.xml ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then phpunit ; fi
+  - if [[ $TRAVIS_PHP_VERSION =~ ^7 ]]; then
+      vendor/bin/phpunit --coverage-clover clover.xml ;
+    else
+      vendor/bin/phpunit ;
+    fi
 
 after_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls --coverage_clover=clover.xml -v ; fi
+  - if [[ $TRAVIS_PHP_VERSION =~ ^7 ]]; then
+      vendor/bin/coveralls --coverage_clover=clover.xml -v ;
+    fi

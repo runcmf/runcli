@@ -25,10 +25,11 @@
     -->
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix="Test.php">./src</directory>
+            <directory suffix=".php">./src</directory>
             <exclude>
                 <directory>./vendor</directory>
                 <directory>./tests</directory>
+                <directory>./ss</directory>
             </exclude>
         </whitelist>
         <blacklist>

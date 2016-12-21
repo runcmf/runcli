@@ -90,7 +90,7 @@ class CliTraitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \RunCli\CliTrait::setMigrationPath($path)
+     * @covers \RunCli\CliTrait::setMigrationPath()
      * @covers \RunCli\CliTrait::getMigrationPath()
      */
     public function testMigrationPath()
@@ -106,8 +106,8 @@ class CliTraitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \RunCli\CliTrait::setSeedPathProtected($path)
-     * @covers \RunCli\CliTrait::getSeedPathProtected()
+     * @covers \RunCli\CliTrait::setSeedPath()
+     * @covers \RunCli\CliTrait::getSeedPath()
      */
     public function testSeedPath()
     {
