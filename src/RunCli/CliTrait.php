@@ -45,19 +45,11 @@ trait CliTrait
             $this->cfg = require $root . 'app/Config/Settings.php';
         } elseif (file_exists($root . 'app/settings.php')) {//akrabat/slim3-skeleton
             $this->cfg = require $root . 'app/settings.php';
+        } else {// fake config
+            $this->cfg = require __DIR__ . '/../../tests/Settings.php';
         }
         defined('DIR') or define('DIR', $root);
     }
-
-//    protected function getDBConfig()
-//    {
-//        if (!0 === count($this->cfg)) {
-//            $_driver = $this->cfg['settings']['db']['default'];
-//            return $this->cfg['settings']['db']['connections'][$_driver];
-//        } else {
-//            return false;
-//        }
-//    }
 
     protected function initDB()
     {

@@ -31,6 +31,7 @@
             <directory suffix=".php">./vendor</directory>
             <file>./tests/bootstrap.php</file>
             <file>./tests/BaseTestCase.php</file>
+            <file>./tests/Settings.php</file>
         </blacklist>
     </filter>
 </phpunit>
