@@ -1,5 +1,8 @@
 # CHANGELOG
 
+### 2016-12-21
+* begin test coverage
+
 ### 2016-08-18, v0.0.5
 * sqlite ready
 * change db driver config

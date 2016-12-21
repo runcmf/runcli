@@ -49,15 +49,15 @@ trait CliTrait
         defined('DIR') or define('DIR', $root);
     }
 
-    protected function getDBConfig()
-    {
-        if (!0 === count($this->cfg)) {
-            $_driver = $this->cfg['settings']['db']['default'];
-            return $this->cfg['settings']['db']['connections'][$_driver];
-        } else {
-            return false;
-        }
-    }
+//    protected function getDBConfig()
+//    {
+//        if (!0 === count($this->cfg)) {
+//            $_driver = $this->cfg['settings']['db']['default'];
+//            return $this->cfg['settings']['db']['connections'][$_driver];
+//        } else {
+//            return false;
+//        }
+//    }
 
     protected function initDB()
     {

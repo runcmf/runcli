@@ -3,7 +3,16 @@
   "description": "RunCli - Command Line Interface. [migrate, seed, generate migrations and seeds from existing database, create database, generate resources and much more :)]",
   "license": "Apache 2",
   "type": "library",
-  "keywords": ["RunCMF", "Slim3", "Slim 3", "Eloquent ORM", "Cli", "database", "migration"],
+  "keywords": [
+    "RunCMF",
+    "Slim3",
+    "Slim 3",
+    "Eloquent ORM",
+    "Cli",
+    "database",
+    "migration",
+    "generate migrations"
+  ],
   "authors": [
     {
       "name": "Vladimir",
@@ -16,6 +25,11 @@
     "symfony/console": "3.1.*",
     "illuminate/database": "~5.3"
   },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^2.5",
+    "phpunit/phpunit": "^5.7",
+    "tracy/tracy": "^2.4"
+  },
   "autoload": {
     "psr-4": {
       "RunCli\\": "src/RunCli"
@@ -25,5 +39,11 @@
     "psr-4": {
       "Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "test": [
+      "@phpunit"
+    ],
+    "phpunit": "php vendor/bin/phpunit"
   }
 }
