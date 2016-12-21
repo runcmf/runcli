@@ -17,8 +17,6 @@
 
 namespace Tests\RunCli;
 
-//use Tests\BaseTestCase;
-
 class CliTest extends \PHPUnit_Framework_TestCase
 {
     public function testCLiMain()
@@ -26,7 +24,7 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $out = '';
         $path = realpath(__DIR__ . '/../../');
         exec('php '.$path.'/cli', $out);
-//print_r($out);
+
         $this->assertContains('Available commands:', $out);
     }
 }
