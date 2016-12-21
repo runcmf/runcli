@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/runcmf/runcli.svg)](https://travis-ci.org/runcmf/runcli)
 [![Coverage Status](https://coveralls.io/repos/github/runcmf/runcli/badge.svg?branch=master)](https://coveralls.io/github/runcmf/runcli?branch=master)
 [![Latest Version on Packagist][ico-version]][link-packagist]
-[![Software License][ico-license]][link-license]
 [![Total Downloads][ico-downloads]][link-downloads]
+[![Software License][ico-license]][link-license]
 
 #RunCli
 ##Standalone command line interface.  
