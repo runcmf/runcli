@@ -1,19 +1,18 @@
 [![Latest Version on Packagist][ico-version]][link-packagist] [![Software License][ico-license]][link-license] [![Total Downloads][ico-downloads]][link-downloads]
 #RunCli
-Standalone command line interface.  
+##Standalone command line interface.  
+
 `migrate, seed, generate migrations and seeds from existing database, generate resources, create database`  
+
 supported driver `mysql, pgsql, sqlite`  
-  
     
 ``` bash
 $ mysql -V
 mysql  Ver 15.1 Distrib 10.1.16-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2
-```
-``` bash
+
 $ psql --version
 psql (PostgreSQL) 9.4.9
-```
-``` bash
+
 $ sqlite3
 SQLite version 3.8.2 2013-12-06 14:53:30
 ```
@@ -23,23 +22,11 @@ in my case [Eloquent ORM](https://github.com/illuminate/database) used with [Sli
   
   
 ## Install
-* Via Composer, command line
 ``` bash
-$ composer require --dev runcmf/runcli
-```
-* Via composer.json
-```
-...
-"require": {
-    "runcmf/runcli":  "dev-master"
-  },
-...
-```
-``` bash
-$ composer update
+$ composer require runcmf/runcli
 ```
 
-* copy or `ln -s` cli to site_root
+* copy or `ln -s` cli to scripts_root/bin
 
 #Config:
 script looking config in paths:  
@@ -106,11 +93,11 @@ return [
 # Usage:
 ## Seed & Migrate
 ``` bash
-php cli migrate:fill
+php bin/cli migrate:fill
 ```
 ![example](ss/ss1.png "migrate fill")
 ``` bash
-php cli seed:fill
+php bin/cli seed:fill
 ```
 ![example](ss/ss2.png "seed fill")
 
@@ -118,7 +105,7 @@ php cli seed:fill
 > redone from [Xethron](https://github.com/Xethron/migrations-generator) with part of code doctrine/dbal but **without** Laravel, way/generators 
 
 ``` bash
-php cli migrate:generate
+php bin/cli migrate:generate
 ```
 ![example](ss/ss3.png "generate migrations")
 ###*Generator info:*
@@ -173,27 +160,27 @@ http://stackoverflow.com/questions/17795517/laravel-4-saving-ip-address-to-model
 > redone from [orangehill/iseed](https://github.com/orangehill/iseed)
 
 ``` bash
-php cli seed:generate
+php bin/cli seed:generate
 ```
 ![example](ss/ss4.png "seed generate")  
 
   
 ## Create database
 ``` bash
-php cli make:db [schema] [charset] [collation]
+php bin/cli make:db [schema] [charset] [collation]
 ```
-schema - OPTIONAL, schema name from config or exception generated;  
+schema - OPTIONAL, schema name from config or exception generated on empty config value;  
 charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**];  
 collation - OPTIONAL, default value [MySQL = **utf8_general_ci**, PostgreSQL = **en_US.UTF-8**];  
 
 
 ## Security
 
-If you discover any security related issues, please email to 1f7.wizard( at )gmail.com or create an issue.
+If you discover any security related issues, please email to 1f7.wizard( at )gmail.com instead of using the issue tracker.
 
 ## Credits
 
-* https://bitbucket.org/1f7
+
 * https://github.com/1f7
 * http://runetcms.ru
 * http://runcmf.ru
@@ -208,4 +195,4 @@ If you discover any security related issues, please email to 1f7.wizard( at )gma
 
 [link-packagist]: https://packagist.org/packages/runcmf/runcli
 [link-license]: http://www.apache.org/licenses/LICENSE-2.0
-[link-downloads]: https://bitbucket.org/1f7/runcli
+[link-downloads]: https://github.com/runcmf/runcli
