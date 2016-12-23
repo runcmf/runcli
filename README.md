@@ -179,6 +179,14 @@ charset - OPTIONAL, default value [MySQL = **utf8**, PostgreSQL = **UTF8**];
 collation - OPTIONAL, default value [MySQL = **utf8_general_ci**, PostgreSQL = **en_US.UTF-8**];  
 
 
+## Tests
+```bash
+$ cd vendor/runcmf/runtracy
+$ composer update
+$ vendor/bin/phpunit
+```
+
+
 ## Security
 
 If you discover any security related issues, please email to 1f7.wizard( at )gmail.com instead of using the issue tracker.
