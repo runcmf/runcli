@@ -27,6 +27,6 @@ class RemoveForeignKeysFromTable extends Table
     protected function createIndexName($column)
     {
         $index = strtolower($this->table . '_' . $column . '_foreign');
-        return str_replace(array('-', '.'), '_', $index);
+        return str_replace(['-', '.'], '_', $index);
     }
 }

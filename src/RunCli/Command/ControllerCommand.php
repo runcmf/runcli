@@ -63,7 +63,8 @@ class ControllerCommand extends Command
         $this->makeRoutes();
         $this->makeController();
 
-        $output->writeln("<info>Controller " . $this->controllerName . " created with " . count($this->methods) . " methods</>");
+        $output->writeln("<info>Controller " . $this->controllerName . " created with " .
+            count($this->methods) . " methods</>");
     }
 
     private function makeViews()
@@ -73,7 +74,8 @@ class ControllerCommand extends Command
         }
         if (is_array($this->methods)) {
             foreach ($this->methods as $method) {
-                file_put_contents("app/Views/" . ucwords($this->controllerName) . "/" . ucwords($method . ".php"), null);
+                file_put_contents("app/Views/" . ucwords($this->controllerName) . "/" .
+                    ucwords($method . ".php"), null);
             }
         }
     }
@@ -84,9 +86,11 @@ class ControllerCommand extends Command
         if (is_array($this->methods)) {
             foreach ($this->methods as $method) {
                 if ($method == 'index') {
-                    $methods .= "Router::any('" . strtolower($this->controllerName) . "', 'App\\Controllers\\" . ucwords($this->controllerName) . "@$method');\n";
+                    $methods .= "Router::any('" . strtolower($this->controllerName) . "', 
+                    'App\\Controllers\\" . ucwords($this->controllerName) . "@$method');\n";
                 } else {
-                    $methods .= "Router::any('" . strtolower($this->controllerName) . "/$method', 'App\\Controllers\\" . ucwords($this->controllerName) . "@$method');\n";
+                    $methods .= "Router::any('" . strtolower($this->controllerName) . "/$method', 
+                    'App\\Controllers\\" . ucwords($this->controllerName) . "@$method');\n";
                 }
             }
             $file = file_get_contents("app/Routes.php");

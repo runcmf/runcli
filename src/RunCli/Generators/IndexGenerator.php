@@ -56,7 +56,8 @@ class IndexGenerator
             $type = 'index';
         }
         $array = ['type' => $type, 'name' => null, 'columns' => $index->getColumns()];
-        if (!$this->ignoreIndexNames && !$this->isDefaultIndexName($table, $index->getName(), $type, $index->getColumns())) {
+        if (!$this->ignoreIndexNames &&
+            !$this->isDefaultIndexName($table, $index->getName(), $type, $index->getColumns())) {
             $array['name'] = $index->getName();
         }
         return $array;

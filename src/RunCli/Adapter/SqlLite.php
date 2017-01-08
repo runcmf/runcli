@@ -22,7 +22,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 class SqlLite extends Common implements AdapterInterface
 {
-    protected $doctrineTypeMapping = array(
+    protected $doctrineTypeMapping = [
         'boolean' => 'boolean',
         'tinyint' => 'boolean',
         'smallint' => 'smallint',
@@ -55,7 +55,7 @@ class SqlLite extends Common implements AdapterInterface
         'decimal' => 'decimal',
         'numeric' => 'decimal',
         'blob' => 'blob',
-    );
+    ];
 
     public function hasTable($table)
     {
@@ -110,10 +110,12 @@ class SqlLite extends Common implements AdapterInterface
         $tableForeignKeys = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
 
         if (!empty($tableForeignKeys)) {
-            $q = "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'";
+            $q = "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) 
+            WHERE type = 'table' AND name = '$table'";
             $createSql = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
             $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
-            if (preg_match_all('#
+            if (preg_match_all(
+                '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
                     REFERENCES\s+[^\s]+\s+(?:\([^\)]+\))?
@@ -122,20 +124,24 @@ class SqlLite extends Common implements AdapterInterface
                         (NOT\s+DEFERRABLE|DEFERRABLE)
                         (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
                     )?#isx',
-                $createSql, $match)) {
-
+                $createSql,
+                $match
+            )) {
                 $names = array_reverse($match[1]);
                 $deferrable = array_reverse($match[2]);
                 $deferred = array_reverse($match[3]);
             } else {
-                $names = $deferrable = $deferred = array();
+                $names = $deferrable = $deferred = [];
             }
 
             foreach ($tableForeignKeys as $key => $value) {
                 $id = $value['id'];
-                $tableForeignKeys[$key]['constraint_name'] = isset($names[$id]) && '' != $names[$id] ? $names[$id] : $id;
-                $tableForeignKeys[$key]['deferrable'] = isset($deferrable[$id]) && 'deferrable' == strtolower($deferrable[$id]) ? true : false;
-                $tableForeignKeys[$key]['deferred'] = isset($deferred[$id]) && 'deferred' == strtolower($deferred[$id]) ? true : false;
+                $tableForeignKeys[$key]['constraint_name'] = isset($names[$id]) &&
+                '' != $names[$id] ? $names[$id] : $id;
+                $tableForeignKeys[$key]['deferrable'] = isset($deferrable[$id]) &&
+                'deferrable' == strtolower($deferrable[$id]) ? true : false;
+                $tableForeignKeys[$key]['deferred'] = isset($deferred[$id]) &&
+                'deferred' == strtolower($deferred[$id]) ? true : false;
             }
         }
 
@@ -213,7 +219,8 @@ class SqlLite extends Common implements AdapterInterface
         }
 
         // inspect column collation
-        $q = "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'";
+        $q = "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) 
+        WHERE type = 'table' AND name = '$table'";
         $createSql = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
         $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
 
@@ -221,7 +228,10 @@ class SqlLite extends Common implements AdapterInterface
             $type = $column->getType();
 //      if ($type instanceof StringType || $type instanceof TextType) {
             if ($type === 'string' || $type === 'text') {
-                $column->setPlatformOption('collation', $this->parseColumnCollationFromSQL($columnName, $createSql) ?: 'BINARY');
+                $column->setPlatformOption(
+                    'collation',
+                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?: 'BINARY'
+                );
             }
         }
 
@@ -287,7 +297,7 @@ class SqlLite extends Common implements AdapterInterface
                 break;
         }
 
-        $options = array(
+        $options = [
             'length' => $length,
             'unsigned' => (bool)$unsigned,
             'fixed' => $fixed,
@@ -296,7 +306,7 @@ class SqlLite extends Common implements AdapterInterface
             'precision' => $precision,
             'scale' => $scale,
             'autoincrement' => false,
-        );
+        ];
 
 //    return new Column($tableColumn['name'], Type::getType($type), $options);
         return new Column($tableColumn['name'], $type, $options);
@@ -308,7 +318,10 @@ class SqlLite extends Common implements AdapterInterface
             '{(?:' . preg_quote($column) . '|' . preg_quote($this->quoteSingleIdentifier($column)) . ')
                 [^,(]+(?:\([^()]+\)[^,]*)?
                 (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
-                COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
+                COLLATE\s+["\']?([^\s,"\')]+)}isx',
+            $sql,
+            $match
+        )) {
             return $match[1];
         }
 
@@ -337,10 +350,11 @@ class SqlLite extends Common implements AdapterInterface
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        $indexBuffer = array();
+        $indexBuffer = [];
 
         // fetch primary
-        $indexArray = DB::connection()->getPdo()->query("PRAGMA TABLE_INFO ('$tableName')")->fetchAll(\PDO::FETCH_ASSOC);
+        $indexArray = DB::connection()->getPdo()->query("PRAGMA TABLE_INFO ('$tableName')")
+            ->fetchAll(\PDO::FETCH_ASSOC);
         usort($indexArray, function ($a, $b) {
             if ($a['pk'] == $b['pk']) {
                 return $a['cid'] - $b['cid'];
@@ -350,12 +364,12 @@ class SqlLite extends Common implements AdapterInterface
         });
         foreach ($indexArray as $indexColumnRow) {
             if ($indexColumnRow['pk'] != "0") {
-                $indexBuffer[] = array(
+                $indexBuffer[] = [
                     'key_name' => 'primary',
                     'primary' => true,
                     'non_unique' => false,
                     'column_name' => $indexColumnRow['name']
-                );
+                ];
             }
         }
 
@@ -364,12 +378,13 @@ class SqlLite extends Common implements AdapterInterface
             // Ignore indexes with reserved names, e.g. autoindexes
             if (strpos($tableIndex['name'], 'sqlite_') !== 0) {
                 $keyName = $tableIndex['name'];
-                $idx = array();
+                $idx = [];
                 $idx['key_name'] = $keyName;
                 $idx['primary'] = false;
                 $idx['non_unique'] = $tableIndex['unique'] ? false : true;
 
-                $indexArray = DB::connection()->getPdo()->query("PRAGMA INDEX_INFO ('{$keyName}')")->fetchAll(\PDO::FETCH_ASSOC);
+                $indexArray = DB::connection()->getPdo()->query("PRAGMA INDEX_INFO ('{$keyName}')")
+                    ->fetchAll(\PDO::FETCH_ASSOC);
 
                 foreach ($indexArray as $indexColumnRow) {
                     $idx['column_name'] = $indexColumnRow['name'];
@@ -386,7 +401,7 @@ class SqlLite extends Common implements AdapterInterface
      */
     protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $list = array();
+        $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
             $name = $value['constraint_name'];
@@ -398,32 +413,34 @@ class SqlLite extends Common implements AdapterInterface
                     $value['on_update'] = null;
                 }
 
-                $list[$name] = array(
+                $list[$name] = [
                     'name' => $name,
-                    'local' => array(),
-                    'foreign' => array(),
+                    'local' => [],
+                    'foreign' => [],
                     'foreignTable' => $value['table'],
                     'onDelete' => $value['on_delete'],
                     'onUpdate' => $value['on_update'],
                     'deferrable' => $value['deferrable'],
                     'deferred' => $value['deferred'],
-                );
+                ];
             }
             $list[$name]['local'][] = $value['from'];
             $list[$name]['foreign'][] = $value['to'];
         }
 
-        $result = array();
+        $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $constraint['foreignTable'],
-                array_values($constraint['foreign']), $constraint['name'],
-                array(
+                array_values($constraint['local']),
+                $constraint['foreignTable'],
+                array_values($constraint['foreign']),
+                $constraint['name'],
+                [
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],
                     'deferrable' => $constraint['deferrable'],
                     'deferred' => $constraint['deferred'],
-                )
+                ]
             );
         }
 

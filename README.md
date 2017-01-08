@@ -8,7 +8,7 @@
 #RunCli
 ##Standalone command line interface.  
 
-`migrate, seed, generate migrations and seeds from existing database, generate resources, create database`  
+`migrate, seed, generate migrations, models and seeds from existing database, generate resources, create database`  
 
 supported driver `mysql, pgsql, sqlite`  
     

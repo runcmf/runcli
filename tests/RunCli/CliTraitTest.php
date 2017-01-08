@@ -1,4 +1,4 @@
-<?php
+<?php // @codingStandardsIgnoreStart
 /**
  * Copyright 2016 1f7.wizard@gmail.com
  *
@@ -24,31 +24,38 @@ class TraitDummy
 {
     use CliTrait;
 
-    public function getConfigProtected() {
+    public function getConfigProtected()
+    {
         $this->getConfig();
     }
-    public function getCfg() {
+    public function getCfg()
+    {
         return $this->cfg;
     }
-    public function getDBConfigProtected() {
+    public function getDBConfigProtected()
+    {
         $this->getDBConfig();
     }
-    public function initDBProtected() {
+    public function initDBProtected()
+    {
         $this->initDB();
     }
-    public function setMigrationPathProtected($path) {
+    public function setMigrationPathProtected($path)
+    {
         $this->setMigrationPath($path);
     }
-    public function getMigrationPathProtected() {
+    public function getMigrationPathProtected()
+    {
         return $this->getMigrationPath();
     }
-    public function setSeedPathProtected($path) {
+    public function setSeedPathProtected($path)
+    {
         $this->setSeedPath($path);
     }
-    public function getSeedPathProtected() {
+    public function getSeedPathProtected()
+    {
         return $this->getSeedPath();
     }
-
 }
 
 /**
@@ -76,7 +83,6 @@ class CliTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(empty($this->dummy->cfg));
         $this->dummy->getConfigProtected();
         $this->assertArrayHasKey('settings', $this->dummy->getCfg());
-
     }
 
     /**
@@ -120,3 +126,4 @@ class CliTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains('zzssxx', $this->dummy->getSeedPathProtected());
     }
 }
+// @codingStandardsIgnoreEnd

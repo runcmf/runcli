@@ -31,7 +31,7 @@ class MySql extends Common implements AdapterInterface
     const LENGTH_LIMIT_BLOB = 65535;
     const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
-    protected $doctrineTypeMapping = array(
+    protected $doctrineTypeMapping = [
         'tinyint' => 'boolean',
         'smallint' => 'smallint',
         'mediumint' => 'integer',
@@ -62,7 +62,7 @@ class MySql extends Common implements AdapterInterface
         'binary' => 'binary',
         'varbinary' => 'binary',
         'set' => 'simple_array',
-    );
+    ];
 
     public function hasTable($table)
     {
@@ -118,7 +118,8 @@ class MySql extends Common implements AdapterInterface
                 'SEQ_IN_INDEX AS Seq_in_index, COLUMN_NAME AS Column_Name, COLLATION AS Collation, ' .
                 'CARDINALITY AS Cardinality, SUB_PART AS Sub_Part, PACKED AS Packed, ' .
                 'NULLABLE AS `Null`, INDEX_TYPE AS Index_Type, COMMENT AS Comment ' .
-                "FROM information_schema.STATISTICS WHERE TABLE_NAME = '" . $table . "' AND TABLE_SCHEMA = '" . $database . "'";
+                "FROM information_schema.STATISTICS WHERE TABLE_NAME = '" . $table . "' 
+                AND TABLE_SCHEMA = '" . $database . "'";
         } else {
             $q = 'SHOW INDEX FROM ' . $table;
         }
@@ -149,18 +150,15 @@ class MySql extends Common implements AdapterInterface
     {
         $charset = $charset ?: 'utf8';
         $collation = $collation ?: 'utf8_general_ci';
-        $q = 'CREATE DATABASE IF NOT EXISTS `' . $schemaName . '` DEFAULT CHARACTER SET `' . $charset . '` COLLATE `' . $collation . '`;';
+        $q = 'CREATE DATABASE IF NOT EXISTS `' . $schemaName . '` 
+        DEFAULT CHARACTER SET `' . $charset . '` COLLATE `' . $collation . '`;';
         $dsn = $cfg['driver'] . ':host=' . $cfg['host'];
         $opt = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ];
         $pdo = new PDO($dsn, $cfg['username'], $cfg['password'], $opt);
-        return $pdo->exec($q
-//                ."CREATE USER '".$cfg['username']."'@'localhost' IDENTIFIED BY '".$cfg['password']."';
-//                GRANT ALL ON `$schemaName`.* TO '".$cfg['username']."'@'localhost';
-//                FLUSH PRIVILEGES;"
-        ) or die(print_r($pdo->errorInfo(), true));
+        return $pdo->exec($q) or die(print_r($pdo->errorInfo(), true));
     }
 
     protected function _getPortableTableColumnDefinition($tableColumn)
@@ -238,7 +236,7 @@ class MySql extends Common implements AdapterInterface
         }
 
         $length = ((int)$length == 0) ? null : (int)$length;
-        $options = array(
+        $options = [
             'length' => $length,
             'unsigned' => (bool)(strpos($tableColumn['type'], 'unsigned') !== false),
             'fixed' => (bool)$fixed,
@@ -250,7 +248,7 @@ class MySql extends Common implements AdapterInterface
             'comment' => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
-        );
+        ];
 
         if ($scale !== null && $precision !== null) {
             $options['scale'] = $scale;
@@ -280,9 +278,9 @@ class MySql extends Common implements AdapterInterface
                 $v['primary'] = false;
             }
             if (strpos($v['index_type'], 'FULLTEXT') !== false) {
-                $v['flags'] = array('FULLTEXT');
+                $v['flags'] = ['FULLTEXT'];
             } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
-                $v['flags'] = array('SPATIAL');
+                $v['flags'] = ['SPATIAL'];
             }
             $tableIndexes[$k] = $v;
         }
@@ -311,7 +309,11 @@ class MySql extends Common implements AdapterInterface
                     'local' => [],
                     'foreign' => [],
 //          'foreignTable' => $value['referenced_table_name'],
-                    'foreignTable' => str_replace(DB::connection()->getConfig('prefix'), '', $value['referenced_table_name']),
+                    'foreignTable' => str_replace(
+                        DB::connection()->getConfig('prefix'),
+                        '',
+                        $value['referenced_table_name']
+                    ),
                     'onDelete' => $value['delete_rule'],
                     'onUpdate' => $value['update_rule'],
                 ];
@@ -323,8 +325,10 @@ class MySql extends Common implements AdapterInterface
         $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $constraint['foreignTable'],
-                array_values($constraint['foreign']), $constraint['name'],
+                array_values($constraint['local']),
+                $constraint['foreignTable'],
+                array_values($constraint['foreign']),
+                $constraint['name'],
                 [
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],

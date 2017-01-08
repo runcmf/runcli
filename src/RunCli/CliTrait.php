@@ -138,7 +138,6 @@ trait CliTrait
         } catch (Exception $e) {
             throw new Exception('Template ' . $tpl . ' not found :(');
         }
-
     }
 
     public function compile($template, array $data)
@@ -178,8 +177,7 @@ trait CliTrait
 
     protected function make($file, $content)
     {
-        if($this->fileExists($file))
-        {
+        if ($this->fileExists($file)) {
             throw new Exception;
         }
         return $this->fileSave($file, $content);

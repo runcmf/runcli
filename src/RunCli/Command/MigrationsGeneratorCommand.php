@@ -45,7 +45,11 @@ class MigrationsGeneratorCommand extends Command
                 'Comma separated list ignored foreign keys names'
             )
             ->addOption(
-                'ignore', 'ign', InputOption::VALUE_REQUIRED, 'Ignore tables to export, seperated by a comma', null
+                'ignore',
+                'ign',
+                InputOption::VALUE_REQUIRED,
+                'Ignore tables to export, seperated by a comma',
+                null
             )
             ->setHelp(<<<EOT
 Hardcoded path prefix 'DIR' - is path to root with slash and suffix '/var/migrations'.
@@ -78,7 +82,9 @@ EOT
         if (empty($database)) {
             $database = $this->getDatabaseName();
         }
-        $this->output->writeln('<fg=blue>Preparing migrations from database:</> <fg=red;options=bold>' . $database . '</>');
+        $this->output->writeln(
+            '<fg=blue>Preparing migrations from database:</> <fg=red;options=bold>' . $database . '</>'
+        );
 
         if (!empty($ignore)) {
 //      $tables = explode(',', str_replace(' ', '', $ignore));
@@ -159,7 +165,9 @@ EOT
             $this->fileSave($this->getMigrationPath() . '/' . $file, $template);
             $this->output->writeln('<comment>Generated migration:</comment> <fg=cyan;options=bold>' . $file . '</>');
         } catch (RuntimeException $e) {
-            $this->output->writeln('<error>The file, ' . $file . ', already exists! I don\'t want to overwrite it.</error>');
+            $this->output->writeln(
+                '<error>The file, ' . $file . ', already exists! I don\'t want to overwrite it.</error>'
+            );
         }
     }
 

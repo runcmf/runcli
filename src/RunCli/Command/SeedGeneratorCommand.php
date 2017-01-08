@@ -39,7 +39,8 @@ class SeedGeneratorCommand extends Command
     {
         $this
             ->setName('seed:generate')
-            ->setDescription('Generate your database table data to a seeds class to given path. f.ex. vendor/runcmf/runbb')
+            ->setDescription('Generate your database table data to a seeds class to given path. 
+            f.ex. vendor/runcmf/runbb')
             ->addArgument(
                 'path',
                 InputArgument::OPTIONAL,
@@ -80,7 +81,9 @@ EOT
         $_driver = $this->cfg['settings']['db']['default'];
         $this->schema = new SchemaGenerator($this->cfg['settings']['db']['connections'][$_driver], $database);
 
-        $this->output->writeln('<fg=blue>Preparing seeders classes from database:</> <fg=red;options=bold>' . $this->getDatabaseName() . '</>');
+        $this->output->writeln(
+            '<fg=blue>Preparing seeders classes from database:</> <fg=red;options=bold>'.$this->getDatabaseName().'</>'
+        );
 
 //    $ignore = $this->input->getOption('ignore');
 
@@ -120,7 +123,8 @@ EOT
                 continue;
             }
 
-            $question = new ConfirmationQuestion('File ' . $fileName . ' already exist. Do you wish to override it? [yes[y]|no[n]]', false);
+            $question = new ConfirmationQuestion('File ' . $fileName . ' already exist. 
+            Do you wish to override it? [yes[y]|no[n]]', false);
             if ($helper->ask($input, $output, $question)) {
                 // if user said yes overwrite old seeder
                 $this->generateSeed($table, $database, $chunkSize, $prerunEvent, $postrunEvent);
@@ -152,7 +156,7 @@ EOT
             $className,
             $stub,
             str_replace($this->schema->getTablePrefix(), '', $table),
-//      $table,
+            //      $table,
             $dataArray,
             null,
             $prerunEvent,
@@ -198,8 +202,16 @@ EOT
      * @param  string $postunEvent
      * @return string
      */
-    public function populateStub($class, $stub, $table, $data, $chunkSize = null, $prerunEvent = null, $postrunEvent = null)
-    {
+    public function populateStub(
+        $class,
+        $stub,
+        $table,
+        $data,
+        $chunkSize = null,
+        $prerunEvent = null,
+        $postrunEvent = null
+    ) {
+    
         $chunkSize = $chunkSize ?: $this->chunk_size;
         $inserts = '';
         $chunks = array_chunk($data, $chunkSize);
@@ -288,7 +300,7 @@ EOT
                 if ($lines[$i][$j] == '\\') {
                     $j++;
                 } //check string open/end
-                else if ($lines[$i][$j] == '\'') {
+                elseif ($lines[$i][$j] == '\'') {
                     $inString = !$inString;
                 }
             }
@@ -359,14 +371,23 @@ EOT
 
         $content = $this->fileGet($databaseSeederPath);//$this->files->get($databaseSeederPath);
         if (strpos($content, "\$this->call('{$className}')") === false) {
-            if (
-                strpos($content, '#iseed_start') &&
+            if (strpos($content, '#iseed_start') &&
                 strpos($content, '#iseed_end') &&
                 strpos($content, '#iseed_start') < strpos($content, '#iseed_end')
             ) {
-                $content = preg_replace("/(\#iseed_start.+?)(\#iseed_end)/us", "$1\$this->call('{$className}');{$this->newLineCharacter}{$this->indentCharacter}{$this->indentCharacter}$2", $content);
+                $content = preg_replace(
+                    "/(\#iseed_start.+?)(\#iseed_end)/us",
+                    "$1\$this->call('{$className}');{$this->newLineCharacter}".
+                    "{$this->indentCharacter}{$this->indentCharacter}$2",
+                    $content
+                );
             } else {
-                $content = preg_replace("/(run\(\).+?)}/us", "$1{$this->indentCharacter}\$this->call('{$className}');{$this->newLineCharacter}{$this->indentCharacter}}", $content);
+                $content = preg_replace(
+                    "/(run\(\).+?)}/us",
+                    "$1{$this->indentCharacter}\$this->call('{$className}');".
+                    "{$this->newLineCharacter}{$this->indentCharacter}}",
+                    $content
+                );
             }
         }
 

@@ -22,7 +22,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 class SqlSrv extends Common implements AdapterInterface
 {
-    protected $doctrineTypeMapping = array(
+    protected $doctrineTypeMapping = [
         'bigint' => 'bigint',
         'numeric' => 'decimal',
         'bit' => 'boolean',
@@ -48,7 +48,7 @@ class SqlSrv extends Common implements AdapterInterface
         'varbinary' => 'binary',
         'image' => 'blob',
         'uniqueidentifier' => 'guid',
-    );
+    ];
 
     public function hasTable($table)
     {
@@ -64,7 +64,6 @@ class SqlSrv extends Common implements AdapterInterface
 
     public function getEnum($table, $database)
     {
-
     }
 
     public function listTableColumns($table, $database)
@@ -132,7 +131,8 @@ class SqlSrv extends Common implements AdapterInterface
                 INNER JOIN sys.foreign_key_columns AS fc
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
-                WHERE " . $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
+                WHERE " .
+            $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
     }
 
     public function createDatabase($schemaName, $charset, $collation, $cfg)
@@ -207,8 +207,8 @@ class SqlSrv extends Common implements AdapterInterface
         $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
-        $options = array(
-            'length' => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
+        $options = [
+            'length' => ($length == 0 || !in_array($type, ['text', 'string'])) ? null : $length,
             'unsigned' => false,
             'fixed' => (bool)$fixed,
             'default' => $default !== 'NULL' ? $default : null,
@@ -217,7 +217,7 @@ class SqlSrv extends Common implements AdapterInterface
             'precision' => $tableColumn['precision'],
             'autoincrement' => (bool)$tableColumn['autoincrement'],
             'comment' => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
-        );
+        ];
 
 //    $column = new Column($tableColumn['name'], Type::getType($type), $options);
         $column = new Column($tableColumn['name'], $type, $options);
@@ -237,7 +237,7 @@ class SqlSrv extends Common implements AdapterInterface
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['non_unique'] = (boolean)$tableIndex['non_unique'];
             $tableIndex['primary'] = (boolean)$tableIndex['primary'];
-            $tableIndex['flags'] = $tableIndex['flags'] ? array($tableIndex['flags']) : null;
+            $tableIndex['flags'] = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
         return $this->getPortableTableIndexesList($tableIndexRows, $tableName);

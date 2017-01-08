@@ -151,7 +151,9 @@ class PgSql extends Common implements AdapterInterface
            WHERE oid IN (
               SELECT indexrelid
               FROM pg_index si, pg_class sc, pg_namespace sn
-              WHERE " . $this->getTableWhereClause($table, 'sc', 'sn') . " AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
+              WHERE " . $this->getTableWhereClause($table, 'sc', 'sn') . " 
+              AND sc.oid=si.indrelid 
+              AND sc.relnamespace = sn.oid
            ) AND pg_index.indexrelid = oid";
 
         $t = DB::connection()->getPdo()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
@@ -226,7 +228,8 @@ class PgSql extends Common implements AdapterInterface
             list($schema, $table) = explode('.', $table);
             $schema = "'" . $schema . "'";
         } else {
-            $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
+            $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') 
+            from pg_catalog.pg_settings where name = 'search_path'),','))";
         }
 
         $table = new Identifier($table);
@@ -248,7 +251,7 @@ class PgSql extends Common implements AdapterInterface
             $tableColumn['length'] = $length;
         }
 
-        $matches = array();
+        $matches = [];
 
         $autoincrement = false;
         if (preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
@@ -353,7 +356,7 @@ class PgSql extends Common implements AdapterInterface
             $tableColumn['default'] = $match[1];
         }
 
-        $options = array(
+        $options = [
             'length' => $length,
             'notnull' => (bool)$tableColumn['isnotnull'],
             'default' => $tableColumn['default'],
@@ -366,7 +369,7 @@ class PgSql extends Common implements AdapterInterface
             'comment' => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
-        );
+        ];
 //die($type);
 //    $column = new Column($tableColumn['field'], Type::getType($type), $options);
         $column = new Column($tableColumn['field'], $type, $options);
@@ -386,7 +389,7 @@ class PgSql extends Common implements AdapterInterface
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        $buffer = array();
+        $buffer = [];
         foreach ($tableIndexes as $row) {
             $colNumbers = explode(' ', $row['indkey']);
             $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
@@ -399,13 +402,13 @@ class PgSql extends Common implements AdapterInterface
             foreach ($colNumbers as $colNum) {
                 foreach ($indexColumns as $colRow) {
                     if ($colNum == $colRow['attnum']) {
-                        $buffer[] = array(
+                        $buffer[] = [
                             'key_name' => $row['relname'],
                             'column_name' => trim($colRow['attname']),
                             'non_unique' => !$row['indisunique'],
                             'primary' => $row['indisprimary'],
                             'where' => $row['where'],
-                        );
+                        ];
                     }
                 }
             }
@@ -441,8 +444,11 @@ class PgSql extends Common implements AdapterInterface
         }
 
         return new ForeignKeyConstraint(
-            $localColumns, $foreignTable, $foreignColumns, $tableForeignKey['conname'],
-            array('onUpdate' => $onUpdate, 'onDelete' => $onDelete)
+            $localColumns,
+            $foreignTable,
+            $foreignColumns,
+            $tableForeignKey['conname'],
+            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete]
         );
     }
 }

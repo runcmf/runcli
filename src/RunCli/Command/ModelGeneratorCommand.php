@@ -36,7 +36,8 @@ class ModelGeneratorCommand extends Command
     {
         $this
             ->setName('model:generate')
-            ->setDescription('Generate Eloquent models from an existing table structure. to given path. f.ex. vendor/runcmf/runbb')
+            ->setDescription('Generate Eloquent models from an existing table structure. 
+            to given path. f.ex. vendor/runcmf/runbb')
             ->addArgument(
                 'tables',
                 InputArgument::OPTIONAL,
@@ -47,9 +48,17 @@ class ModelGeneratorCommand extends Command
                 InputArgument::OPTIONAL,
                 'Set Path Model Module Root Dir without trailing slash. f.ex. vendor/runcmf/runbb'
             )
-            ->addOption('connection', 'c', InputOption::VALUE_NONE, 'The database connection to use.', $this->dbDefault, null)
+            ->addOption(
+                'connection',
+                'c',
+                InputOption::VALUE_NONE,
+                'The database connection to use.',
+                $this->dbDefault,
+                null
+            )
             ->addOption('database', 'db', InputOption::VALUE_OPTIONAL, 'database connection', null)
-            ->addOption('tables', 't', InputOption::VALUE_NONE, 'A list of Tables you wish to Generate Migrations for separated by a comma: users,posts,comments', null)
+            ->addOption('tables', 't', InputOption::VALUE_NONE, 'A list of Tables you wish to Generate Migrations 
+            for separated by a comma: users,posts,comments', null)
             ->addOption('path', 'p', InputOption::VALUE_NONE, 'Where should the file be created?', null)
             ->addOption('namespace', null, InputOption::VALUE_OPTIONAL, 'Explicitly set the namespace', null)
             ->addOption('overwrite', 'o', InputOption::VALUE_NONE, 'Overwrite existing models ?', null)
@@ -79,7 +88,9 @@ EOT
         // determine destination folder
         $this->setModelPath($input->getArgument('path'));
         $destinationFolder = $this->getModelPath();
-        $this->output->writeln('<comment>Set destination Folder:</comment> <fg=cyan;options=bold>'.$destinationFolder.'</>');
+        $this->output->writeln(
+            '<comment>Set destination Folder:</comment> <fg=cyan;options=bold>'.$destinationFolder.'</>'
+        );
 
         $database = $this->input->getOption('database');
         if (empty($database)) {
@@ -111,27 +122,28 @@ EOT
         $this->output->writeln('<comment>All</comment> <fg=cyan;options=bold>done!</>');
     }
 
-    public function getTables() {
+    public function getTables()
+    {
         $schemaTables = $this->schema->listTableNames();
         $specifiedTables = $this->input->getOption('tables');
 
         //when no tables specified, generate all tables
-        if(empty($specifiedTables)) {
+        if (empty($specifiedTables)) {
             return $schemaTables;
         }
 
         $specifiedTables = explode(',', $specifiedTables);
 
         $tablesToGenerate = [];
-        foreach($specifiedTables as $specifiedTable) {
-            if(!in_array($specifiedTable, $schemaTables)) {
+        foreach ($specifiedTables as $specifiedTable) {
+            if (!in_array($specifiedTable, $schemaTables)) {
                 $this->output->writeln('<error>specified table not found: '. $specifiedTable.'</error>');
             } else {
                 $tablesToGenerate[$specifiedTable] = $specifiedTable;
             }
         }
 
-        if(empty($tablesToGenerate)) {
+        if (empty($tablesToGenerate)) {
             $this->output->writeln('<error>No tables to generate</error>');
             die;
         }
@@ -159,21 +171,22 @@ EOT
             $table = str_replace($this->schema->getTablePrefix(), '', $table);
             try {
                 $this->generateEloquentModel($destinationFolder, $table, $rules);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->output->writeln('<error>Failed to generate model for table'. $table.'</error>');
                 return;
             }
         }
     }
 
-    private function generateEloquentModel($destinationFolder, $table, $rules) {
+    private function generateEloquentModel($destinationFolder, $table, $rules)
+    {
 
         //1. Determine path where the file should be generated
         $modelName = $this->generateModelNameFromTableName($table);
         $filePathToGenerate = $destinationFolder . '/'.$modelName.'.php';
 
         $canContinue = $this->canGenerateEloquentModel($filePathToGenerate, $table);
-        if(!$canContinue) {
+        if (!$canContinue) {
             return;
         }
 
@@ -183,7 +196,8 @@ EOT
         $belongsTo = $rules['belongsTo'];
         $belongsToMany = $rules['belongsToMany'];
 
-        $fillable = implode(', ', $rules['fillable']);
+//        $fillable = implode(', ', $rules['fillable']);
+        $fillable = implode(",\n            ", $rules['fillable']);
 
         $belongsToFunctions = $this->generateBelongsToFunctions($belongsTo);
         $belongsToManyFunctions = $this->generateBelongsToManyFunctions($belongsToMany);
@@ -199,10 +213,10 @@ EOT
 
         // set commented line
         $k = '//protected $primaryKey = \'\';// NO PRIMARY KEY DEFINED';
-        if(is_array($rules['primaryKey'])) {
-            if(count($rules['primaryKey']) > 1) {
+        if (is_array($rules['primaryKey'])) {
+            if (count($rules['primaryKey']) > 1) {
                 // set composite key
-                $k = 'protected $primaryKey = '."['".implode("', '",$rules['primaryKey'])."'];";
+                $k = 'protected $primaryKey = '."['".implode("', '", $rules['primaryKey'])."'];";
             } else {
                 // set single key
                 $k = 'protected $primaryKey = \''.$rules['primaryKey'][0].'\';';
@@ -216,10 +230,12 @@ EOT
             'TABLENAME' => $table,
             'FILLABLE' => $fillable,
             'FUNCTIONS' => $functions,
-            'PRIMARYKEY' => $k
+            'PRIMARYKEY' => $k,
+            'TIMESTAMP' => var_export($rules['timestamps'], true)
         ];
 
-        $this->make($filePathToGenerate,
+        $this->make(
+            $filePathToGenerate,
             $this->compile(
                 'model',
                 $templateData
@@ -229,17 +245,23 @@ EOT
         $this->output->writeln('<info>Generated model for table '.$table.'</info>');
     }
 
-    private function canGenerateEloquentModel($filePathToGenerate, $table) {
+    private function canGenerateEloquentModel($filePathToGenerate, $table)
+    {
         $canOverWrite = $this->input->getOption('overwrite');
-        if(file_exists($filePathToGenerate)) {
-            if($canOverWrite) {
+        if (file_exists($filePathToGenerate)) {
+            if ($canOverWrite) {
                 $deleted = unlink($filePathToGenerate);
-                if(!$deleted) {
-                    $this->output->writeln('<question>Failed to delete existing model '.$filePathToGenerate.'</question>');
+                if (!$deleted) {
+                    $this->output->writeln(
+                        '<question>Failed to delete existing model '.$filePathToGenerate.'</question>'
+                    );
                     return false;
                 }
             } else {
-                $this->output->writeln("<question>Skipped model generation, file already exists. (force using --overwrite) $table -> $filePathToGenerate</question>");
+                $this->output->writeln(
+                    "<question>Skipped model generation, file already exists. (force using --overwrite) 
+                    $table -> $filePathToGenerate</question>"
+                );
                 return false;
             }
         }
@@ -247,16 +269,16 @@ EOT
         return true;
     }
 
-    private function getNamespace() {
+    private function getNamespace()
+    {
         $ns = $this->input->getOption('namespace');
-        if(empty($ns)) {
+        if (empty($ns)) {
 //            $ns = env('APP_NAME','App\Models');
             $ns = 'App\Models';
         }
         //convert forward slashes in the namespace to backslashes
         $ns = str_replace('/', '\\', $ns);
         return $ns;
-
     }
 
     private function generateFunctions($functionsContainer)
@@ -343,11 +365,13 @@ EOT
 
             $belongsToManyFunctionName = $this->getPluralFunctionName($belongsToManyModel);
 
+            // @codingStandardsIgnoreStart
             $function = "
     public function $belongsToManyFunctionName() {".'
         return $this->belongsToMany'."(\\".$this->namespace."\\$belongsToManyModel::class, '$through', '$key1', '$key2');
     }
 ";
+            // @codingStandardsIgnoreEnd
             $functions .= $function;
         }
 
@@ -383,14 +407,14 @@ EOT
             $__columns = $this->schema->listTableColumns($table->table_name);
 
             $columns = [];
-            foreach($__columns as $col) {
+            foreach ($__columns as $col) {
                 $columns[] = $col->toArray()['name'];
             }
 
             $prep[$table->table_name] = [
                 'foreign' => $foreignKeys,
                 'primary' => $primaryKeys,
-                'columns' => $columns,
+                'columns' => $columns
             ];
         }
 
@@ -410,6 +434,7 @@ EOT
                 'belongsTo' => [],
                 'belongsToMany' => [],
                 'fillable' => [],
+                'timestamps' => false,
             ];
         }
 
@@ -436,15 +461,15 @@ EOT
             //when we detect a many-to-many table, we still want to set relations on it
             //else
             {
-                foreach ($foreign as $fk) {
-                    $isOneToOne = $this->detectOneToOne($fk, $primary);
+            foreach ($foreign as $fk) {
+                $isOneToOne = $this->detectOneToOne($fk, $primary);
 
-                    if ($isOneToOne) {
-                        $this->addOneToOneRules($tables, $table, $rules, $fk);
-                    } else {
-                        $this->addOneToManyRules($tables, $table, $rules, $fk);
-                    }
+                if ($isOneToOne) {
+                    $this->addOneToOneRules($tables, $table, $rules, $fk);
+                } else {
+                    $this->addOneToManyRules($tables, $table, $rules, $fk);
                 }
+            }
             }
         }
 
@@ -457,9 +482,14 @@ EOT
         foreach ($columns as $column_name) {
             if ($column_name !== 'created_at' && $column_name !== 'updated_at') {
                 $fillable[] = "'$column_name'";
+            } else {
+                $rules[$table]['timestamps'] = true;
             }
         }
-        $rules[$table]['fillable'] = $fillable;
+        // FIXME rebuild with check column type instead check name !!!
+        // delete id column from fillable
+        // diff types strict
+        $rules[$table]['fillable'] = array_diff($fillable, ["'id'"]);
     }
 
     private function addOneToManyRules($tables, $table, &$rules, $fk)
@@ -470,10 +500,10 @@ EOT
         $fkTable = $fk['on'];
         $field = $fk['field'];
         $references = $fk['references'];
-        if(in_array($fkTable, $tables)) {
+        if (in_array($fkTable, $tables)) {
             $rules[$fkTable]['hasMany'][] = [$table, $field, $references];
         }
-        if(in_array($table, $tables)) {
+        if (in_array($table, $tables)) {
             $rules[$table]['belongsTo'][] = [$fkTable, $field, $references];
         }
     }
@@ -486,10 +516,10 @@ EOT
         $fkTable = $fk['on'];
         $field = $fk['field'];
         $references = $fk['references'];
-        if(in_array($fkTable, $tables)) {
+        if (in_array($fkTable, $tables)) {
             $rules[$fkTable]['hasOne'][] = [$table, $field, $references];
         }
-        if(in_array($table, $tables)) {
+        if (in_array($table, $tables)) {
             $rules[$table]['belongsTo'][] = [$fkTable, $field, $references];
         }
     }
@@ -512,10 +542,10 @@ EOT
         //$fk2References = $fk2['references'];
 
         //User belongstomany groups user_group, user_id, group_id
-        if(in_array($fk1Table, $tables)) {
+        if (in_array($fk1Table, $tables)) {
             $rules[$fk1Table]['belongsToMany'][] = [$fk2Table, $table, $fk1Field, $fk2Field];
         }
-        if(in_array($fk2Table, $tables)) {
+        if (in_array($fk2Table, $tables)) {
             $rules[$fk2Table]['belongsToMany'][] = [$fk1Table, $table, $fk2Field, $fk1Field];
         }
     }
@@ -544,7 +574,6 @@ EOT
 
         //ensure we only have two foreign keys
         if (count($foreignKeys) === 2) {
-
             //ensure our foreign keys are not also defined as primary keys
             $primaryKeyCountThatAreAlsoForeignKeys = 0;
             foreach ($foreignKeys as $foreign) {
@@ -557,7 +586,8 @@ EOT
 
             if ($primaryKeyCountThatAreAlsoForeignKeys === 1) {
                 //one of the keys foreign keys was also a primary key
-                //this is not a many to many. (many to many is only possible when both or none of the foreign keys are also primary)
+                //this is not a many to many. (many to many is only possible when both or none of the
+                // foreign keys are also primary)
                 return false;
             }
 

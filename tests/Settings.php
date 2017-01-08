@@ -1,4 +1,4 @@
-<?php
+<?php // @codingStandardsIgnoreStart
 /**
  * Copyright 2016 1f7.wizard@gmail.com
  *
@@ -84,3 +84,4 @@ return [
         ]
     ]
 ];
+// @codingStandardsIgnoreEnd

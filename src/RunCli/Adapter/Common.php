@@ -18,14 +18,14 @@
 
 namespace RunCli\Adapter;
 
-
 class Common
 {
     protected function mapType($dbType)
     {
         $dbType = strtolower($dbType);
         if (!isset($this->doctrineTypeMapping[$dbType])) {
-            //throw new \Exception("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
+            //throw new \Exception("Unknown database type ".$dbType." requested, " .
+            // get_class($this) . " may not support it.");
             return 'unknown';//FIXME
         }
 
@@ -71,7 +71,7 @@ class Common
      */
     protected function getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
-        $result = array();
+        $result = [];
         foreach ($tableIndexRows as $tableIndex) {
             $indexName = $keyName = $tableIndex['key_name'];
             if ($tableIndex['primary']) {
@@ -80,14 +80,14 @@ class Common
             $keyName = strtolower($keyName);
 
             if (!isset($result[$keyName])) {
-                $result[$keyName] = array(
+                $result[$keyName] = [
                     'name' => $indexName,
-                    'columns' => array($tableIndex['column_name']),
+                    'columns' => [$tableIndex['column_name']],
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
-                    'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
-                    'options' => isset($tableIndex['where']) ? array('where' => $tableIndex['where']) : array(),
-                );
+                    'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : [],
+                    'options' => isset($tableIndex['where']) ? ['where' => $tableIndex['where']] : [],
+                ];
             } else {
                 $result[$keyName]['columns'][] = $tableIndex['column_name'];
             }
@@ -95,7 +95,7 @@ class Common
 
 //    $eventManager = $this->_platform->getEventManager();
 
-        $indexes = array();
+        $indexes = [];
         foreach ($result as $indexKey => $data) {
             $index = null;
 //      $defaultPrevented = false;
@@ -109,7 +109,14 @@ class Common
 //      }
 
 //      if ( ! $defaultPrevented) {
-            $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
+            $index = new Index(
+                $data['name'],
+                $data['columns'],
+                $data['unique'],
+                $data['primary'],
+                $data['flags'],
+                $data['options']
+            );
 //      }
 
             if ($index) {

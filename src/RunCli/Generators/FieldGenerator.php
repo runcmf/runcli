@@ -42,7 +42,9 @@ class FieldGenerator
         $this->database = $database;
         $this->tableWithOutPrefix = str_replace($schema->getTablePrefix(), '', $table);
         $columns = $schema->listTableColumns($table);
-        if (empty($columns)) return false;
+        if (empty($columns)) {
+            return false;
+        }
         $indexGenerator = new IndexGenerator();
         $indexGenerator->get($table, $schema, $ignoreIndexNames);
         $fields = $this->setEnum($schema, $this->getFields($columns, $indexGenerator), $table);
@@ -152,15 +154,25 @@ class FieldGenerator
                 }
                 $args = $this->getLength($length);
             }
-            if ($nullable) $decorators[] = 'nullable';
-            if ($default !== null) $decorators[] = $this->getDefault($default, $type);
-            if ($index) $decorators[] = $this->decorate($index->type, $index->name);
+            if ($nullable) {
+                $decorators[] = 'nullable';
+            }
+            if ($default !== null) {
+                $decorators[] = $this->getDefault($default, $type);
+            }
+            if ($index) {
+                $decorators[] = $this->decorate($index->type, $index->name);
+            }
             // fix index name for postgres
 //      if ($index) $decorators[] = $this->decorate($index->type, $this->tableWithOutPrefix.'_'.$index->name);
 
             $field = ['field' => $name, 'type' => $type];
-            if ($decorators) $field['decorators'] = $decorators;
-            if ($args) $field['args'] = $args;
+            if ($decorators) {
+                $field['decorators'] = $decorators;
+            }
+            if ($args) {
+                $field['args'] = $args;
+            }
             $fields[$name] = $field;
         }
         return $fields;
@@ -185,8 +197,9 @@ class FieldGenerator
     protected function getDefault($default, &$type)
     {
         if (in_array($default, ['CURRENT_TIMESTAMP'])) {
-            if ($type == 'dateTime')
+            if ($type == 'dateTime') {
                 $type = 'timestamp';
+            }
             $default = $this->decorate('DB::raw', $default);
         } elseif (in_array($type, ['string', 'text']) || !is_numeric($default)) {
             $default = $this->argsToString($default);
