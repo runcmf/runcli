@@ -1,6 +1,10 @@
 <?php namespace $NAMESPACE$;
 
-
+/**
+ * RunCli Generated controller
+ *
+ * Class $NAME$
+ */
 class $NAME$ extends Controller {
 
 	/**

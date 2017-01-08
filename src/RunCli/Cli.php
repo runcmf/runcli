@@ -24,8 +24,9 @@ use RunCli\Command\MigrationsGeneratorCommand;
 use RunCli\Command\SeedCommand;
 use RunCli\Command\SeedGeneratorCommand;
 use RunCli\Command\MakeDBCommand;
-use RunCli\Command\ControllerCommand;
-use RunCli\Command\ModelCommand;
+//use RunCli\Command\ControllerCommand;
+//use RunCli\Command\ModelCommand;
+use RunCli\Command\ModelGeneratorCommand;
 
 class Cli extends Application
 {
@@ -40,6 +41,7 @@ class Cli extends Application
         $this->add(new SeedCommand());
         $this->add(new SeedGeneratorCommand());
 //    $this->add(new ModelCommand());
+        $this->add(new ModelGeneratorCommand());
 //    $this->add(new ControllerCommand());
     }
 }

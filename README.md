@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/runcmf/runcli.svg)](https://travis-ci.org/runcmf/runcli)
 [![Coverage Status](https://coveralls.io/repos/github/runcmf/runcli/badge.svg?branch=master)](https://coveralls.io/github/runcmf/runcli?branch=master)
+[![Code Climate](https://codeclimate.com/github/runcmf/runcli/badges/gpa.svg)](https://codeclimate.com/github/runcmf/runcli)
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
 [![Software License][ico-license]][link-license]
@@ -169,7 +170,16 @@ php bin/cli seed:generate
 ```
 ![example](ss/ss4.png "seed generate")  
 
-  
+
+## Generate models from existing database:
+> redone from [user11001/eloquent-model-generator](https://github.com/pepijnolivier/Eloquent-Model-Generator)
+
+``` bash
+php bin/cli model:generate --namespace='YourNameSpace\Models'
+```
+![example](ss/ss5.png "models generate")  
+
+
 ## Create database
 ``` bash
 php bin/cli make:db [schema] [charset] [collation]

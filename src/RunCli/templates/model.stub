@@ -2,8 +2,21 @@
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * RunCli Generated model
+ *
+ * Class $NAME$
+ */
 class $NAME$ extends Model {
 
-	protected $fillable = [];
+    protected $table = '$TABLENAME$';
+
+    $PRIMARYKEY$
+
+    protected $fillable = [
+            $FILLABLE$
+        ];
+
+$FUNCTIONS$
 
 }

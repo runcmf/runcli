@@ -1,6 +1,9 @@
 # CHANGELOG
 
-### 2016-12-21
+### 2017-01-08 v0.1.1
+* add from existed db model generator
+
+### 2016-12-21 v0.1.1
 * begin test coverage
 
 ### 2016-08-18, v0.0.5

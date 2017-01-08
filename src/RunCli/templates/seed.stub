@@ -3,6 +3,11 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Capsule\Manager as DB;
 
+/**
+ * RunCli Generated seed
+ *
+ * Class {{class}}
+ */
 class {{class}} extends Seeder
 {
     /**

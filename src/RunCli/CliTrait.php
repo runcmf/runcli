@@ -28,10 +28,13 @@ trait CliTrait
     private $migrationPath;
     protected $migrationName;
     private $seedPath;
+    private $modelPath;
 
     protected $input;
     protected $output;
     protected $dialog;
+
+    protected $dbDefault;
 
     protected $cfg = [];
     protected $dateTemplate = 'Y_m_d_His';
@@ -55,14 +58,28 @@ trait CliTrait
     {
         $this->getConfig();
         // Register the database connection with Eloquent
-        $_driver = $this->cfg['settings']['db']['default'];
+        $this->dbDefault = $this->cfg['settings']['db']['default'];
         $capsule = new \Illuminate\Database\Capsule\Manager;
-        $capsule->addConnection($this->cfg['settings']['db']['connections'][$_driver]);
+        $capsule->addConnection($this->cfg['settings']['db']['connections'][$this->dbDefault]);
         $capsule->setAsGlobal();
         //$capsule::connection()->enableQueryLog();
         $capsule->bootEloquent();
         // set timezone for timestamps etc
         //date_default_timezone_set('UTC');
+    }
+
+    protected function setModelPath($path)
+    {
+        if (empty($path)) {
+            $this->modelPath = DIR . 'var/models';
+        } else {
+            $this->modelPath = DIR . $path . '/var/models';
+        }
+    }
+
+    protected function getModelPath()
+    {
+        return $this->modelPath;
     }
 
     protected function setMigrationPath($path)
@@ -157,6 +174,15 @@ trait CliTrait
     protected function glob($pattern, $flags = 0)
     {
         return glob($pattern, $flags);
+    }
+
+    protected function make($file, $content)
+    {
+        if($this->fileExists($file))
+        {
+            throw new Exception;
+        }
+        return $this->fileSave($file, $content);
     }
 
     protected function fileExists($file)
